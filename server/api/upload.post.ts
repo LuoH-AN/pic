@@ -86,8 +86,8 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  const uploadDir = s3Config.uploadDir || 'picture'
-  const key = `${uploadDir}/${newFilename}`.replace(/^\/+/, '')
+  const uploadDir = (s3Config.uploadDir || '').trim().replace(/^\/+|\/+$/g, '')
+  const key = uploadDir ? `${uploadDir}/${newFilename}` : newFilename
 
   const s3Client = createS3Client(s3Config)
 

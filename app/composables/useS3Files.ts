@@ -89,7 +89,7 @@ export function useS3Files() {
 
   const deleteFile = async (path: string) => {
     const config = getConfig()
-    if (!config) return
+    if (!config) return false
 
     try {
       await $fetch('/api/s3/delete', {
@@ -98,10 +98,32 @@ export function useS3Files() {
         headers: { 'x-s3-config': JSON.stringify(config) },
       })
       showToast('删除成功')
-      fetchFiles()
+      await fetchFiles()
+      return true
     } catch (error) {
       console.error('删除失败:', error)
       showToast('删除失败')
+      return false
+    }
+  }
+
+  const renameFile = async (path: string, newName: string) => {
+    const config = getConfig()
+    if (!config) return false
+
+    try {
+      await $fetch('/api/s3/rename', {
+        method: 'POST',
+        body: { path: getFullPath(path), newName },
+        headers: { 'x-s3-config': JSON.stringify(config) },
+      })
+      showToast('重命名成功')
+      await fetchFiles()
+      return true
+    } catch (error) {
+      console.error('重命名失败:', error)
+      showToast('重命名失败')
+      return false
     }
   }
 
@@ -117,5 +139,6 @@ export function useS3Files() {
     navigateTo,
     getImageUrl,
     deleteFile,
+    renameFile,
   }
 }

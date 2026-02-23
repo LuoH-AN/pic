@@ -6,7 +6,7 @@
         :key="index"
         :file="file"
         @upload="$emit('upload', file)"
-        @copy="(url) => $emit('copy', url)"
+        @copy="(url, targetFile) => $emit('copy', url, targetFile)"
         @remove="$emit('remove', index)"
       />
     </div>
@@ -15,6 +15,7 @@
       <div class="left-spacer"></div>
       <div class="right-actions">
         <UiIconButton
+          variant="upload"
           :loading="isUploading"
           title="全部上传"
           @click="$emit('uploadAll')"
@@ -44,7 +45,7 @@ interface Props {
 defineProps<Props>()
 defineEmits<{
   upload: [file: PreviewFile]
-  copy: [url?: string]
+  copy: [url?: string, file?: PreviewFile]
   remove: [index: number]
   uploadAll: []
   removeAll: []
@@ -75,6 +76,7 @@ defineEmits<{
 }
 
 .right-actions {
+  --card-bg: #faf8f5;
   display: flex;
   gap: 8px;
 }

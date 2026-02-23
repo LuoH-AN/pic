@@ -4,7 +4,7 @@
       <img :src="file.preview" :alt="file.name" class="preview-image" />
     </div>
 
-    <div v-if="file.uploaded" class="file-url" @click="$emit('copy', file.url)">
+    <div v-if="file.uploaded" class="file-url" @click="$emit('copy', file.url, file)">
       {{ file.url }}
     </div>
 
@@ -24,12 +24,15 @@
       <UiIconButton
         v-if="file.uploaded"
         variant="copy"
-        title="复制链接"
-        @click="$emit('copy', file.url)"
+        :title="file.copied ? '已复制' : '复制链接'"
+        @click="$emit('copy', file.url, file)"
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg v-if="!file.copied" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
           <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+        </svg>
+        <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 6L9 17l-5-5" />
         </svg>
       </UiIconButton>
 
@@ -56,18 +59,19 @@ interface Props {
 defineProps<Props>()
 defineEmits<{
   upload: []
-  copy: [url?: string]
+  copy: [url?: string, file?: PreviewFile]
   remove: []
 }>()
 </script>
 
 <style scoped>
 .file-item {
+  --card-bg: #ffffff;
   display: flex;
   align-items: center;
   gap: 16px;
   padding: 12px 16px;
-  background: white;
+  background: var(--card-bg);
   border-radius: 12px !important;
   border: 1px solid #e5e7eb;
 }
@@ -108,5 +112,6 @@ defineEmits<{
 .file-actions {
   display: flex;
   gap: 8px;
+  margin-left: auto;
 }
 </style>

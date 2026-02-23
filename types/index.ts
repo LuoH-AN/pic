@@ -6,7 +6,7 @@ export interface S3Config {
   bucket: string
   region: string
   publicUrl: string
-  uploadDir: string
+  uploadDir?: string
 }
 
 // 重命名配置
@@ -46,4 +46,5 @@ export interface PreviewFile {
   uploaded?: boolean
   url?: string
   uploading?: boolean
+  copied?: boolean
 }

@@ -36,7 +36,7 @@ withDefaults(defineProps<Props>(), {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #faf8f5 !important;
+  background: var(--card-bg, #ffffff) !important;
   border: none !important;
   border-radius: 8px !important;
   cursor: pointer;
@@ -49,7 +49,7 @@ withDefaults(defineProps<Props>(), {
 }
 
 .icon-btn:hover:not(:disabled) {
-  background: #f3f4f6 !important;
+  background: var(--card-bg, #ffffff) !important;
 }
 
 .icon-btn:disabled {
@@ -62,7 +62,7 @@ withDefaults(defineProps<Props>(), {
 }
 
 .icon-btn.upload:hover:not(:disabled) {
-  background: #eff6ff !important;
+  background: var(--card-bg, #ffffff) !important;
 }
 
 .icon-btn.copy :deep(svg) {
@@ -70,7 +70,7 @@ withDefaults(defineProps<Props>(), {
 }
 
 .icon-btn.copy:hover:not(:disabled) {
-  background: #ecfdf5 !important;
+  background: var(--card-bg, #ffffff) !important;
 }
 
 .icon-btn.delete :deep(svg) {
@@ -78,7 +78,7 @@ withDefaults(defineProps<Props>(), {
 }
 
 .icon-btn.delete:hover:not(:disabled) {
-  background: #fef2f2 !important;
+  background: var(--card-bg, #ffffff) !important;
 }
 
 .loading-spinner {

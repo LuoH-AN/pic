@@ -14,6 +14,7 @@ export function useUpload() {
         file,
         preview,
         name: file.name,
+        copied: false,
       })
     })
   }
@@ -54,6 +55,7 @@ export function useUpload() {
       if (response.success) {
         previewFile.uploaded = true
         previewFile.url = response.url
+        previewFile.copied = false
         showToast('上传成功')
       }
     } catch (error) {
@@ -87,10 +89,14 @@ export function useUpload() {
     }
   }
 
-  const copyUrl = async (url?: string) => {
+  const copyUrl = async (url?: string, previewFile?: PreviewFile) => {
     if (!url) return
     try {
       await navigator.clipboard.writeText(url)
+      const targetFile = previewFile ?? previewFiles.value.find(file => file.url === url)
+      if (targetFile) {
+        targetFile.copied = true
+      }
       showToast('已复制到剪贴板')
     } catch (e) {
       showToast('复制失败')
