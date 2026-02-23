@@ -51,6 +51,7 @@
           v-for="(file, index) in imageFiles"
           :key="file.path"
           class="masonry-item pswp-gallery-item"
+          :class="{ loaded: isImageLoaded(file.path) }"
           :data-path="file.path"
           :href="getImageUrl(file)"
           :data-pswp-width="getPhotoWidth(file)"
@@ -64,12 +65,15 @@
           @touchend="handleImageTouchEnd"
           @touchcancel="handleImageTouchEnd"
         >
+          <div v-if="!isImageLoaded(file.path)" class="image-loading"></div>
           <img
             :src="getImageUrl(file)"
             :alt="file.name"
+            :class="{ loaded: isImageLoaded(file.path) }"
             draggable="false"
             loading="lazy"
-            @load="captureDimensions(file.path, $event)"
+            decoding="async"
+            @load="handleImageLoaded(file.path, $event)"
             @contextmenu.prevent
           />
         </a>
@@ -206,6 +210,7 @@ const imageMenuRef = ref<HTMLElement | null>(null)
 const pathMenuRef = ref<HTMLElement | null>(null)
 const lightbox = shallowRef<PhotoSwipeLightbox | null>(null)
 const imageDimensions = ref<Record<string, { width: number; height: number }>>({})
+const imageLoaded = ref<Record<string, boolean>>({})
 const masonrySpans = ref<Record<string, number>>({})
 const imageContextMenuPosition = ref({ x: 0, y: 0 })
 const pathMenuPosition = ref({ x: 0, y: 0 })
@@ -566,6 +571,15 @@ const getPhotoHeight = (file: FileItem) => {
   return imageDimensions.value[file.path]?.height || 1200
 }
 
+const isImageLoaded = (path: string) => {
+  return Boolean(imageLoaded.value[path])
+}
+
+const handleImageLoaded = (path: string, event: Event) => {
+  imageLoaded.value[path] = true
+  captureDimensions(path, event)
+}
+
 const goHome = () => {
   hidePathMenu()
   navigateTo('')
@@ -729,6 +743,14 @@ watch(
 watch(
   [imageFiles, currentPath],
   async () => {
+    const nextLoaded: Record<string, boolean> = {}
+    imageFiles.value.forEach((file) => {
+      if (imageLoaded.value[file.path]) {
+        nextLoaded[file.path] = true
+      }
+    })
+    imageLoaded.value = nextLoaded
+
     if (showImageContextMenu.value && !contextMenuTargetFile.value) {
       hideImageContextMenu()
     }
@@ -802,7 +824,7 @@ onBeforeUnmount(() => {
 .page-container {
   min-height: 100vh;
   background: #faf8f5;
-  padding: 24px;
+  padding: 24px 24px calc(24px + var(--bottom-nav-offset, 96px));
 }
 
 .file-manager {
@@ -973,27 +995,49 @@ onBeforeUnmount(() => {
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   grid-auto-rows: 8px;
   grid-auto-flow: dense;
+  align-items: start;
   gap: 14px;
 }
 
 .masonry-item {
   position: relative;
   display: block;
+  align-self: start;
   border-radius: 12px;
   border: 1px solid #e5e7eb;
   overflow: hidden;
-  background: #ffffff;
+  background: #f1f5f9;
   cursor: zoom-in;
   -webkit-touch-callout: none;
+}
+
+.image-loading {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, #eef2f7 30%, #f8fafc 45%, #eef2f7 60%);
+  background-size: 220% 100%;
+  animation: imageShimmer 1.3s linear infinite;
+  pointer-events: none;
 }
 
 .masonry-item img {
   display: block;
   width: 100%;
   height: auto;
+  opacity: 0;
+  transition: opacity 0.22s ease;
   -webkit-user-drag: none;
   -webkit-touch-callout: none;
   user-select: none;
+}
+
+.masonry-item img.loaded {
+  opacity: 1;
+}
+
+@keyframes imageShimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0 0; }
 }
 
 :global(.pswp),
@@ -1183,7 +1227,7 @@ onBeforeUnmount(() => {
 
 @media (max-width: 768px) {
   .page-container {
-    padding: 14px;
+    padding: 14px 14px calc(14px + var(--bottom-nav-offset, 92px));
   }
 
   .path-main {

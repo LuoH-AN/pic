@@ -25,7 +25,7 @@ const { show, message } = useAppToast()
 
 <style scoped>
 .page-container {
-  min-height: 100vh;
+  min-height: calc(100vh - var(--bottom-nav-offset, 96px));
   display: flex;
   align-items: center;
   justify-content: center;

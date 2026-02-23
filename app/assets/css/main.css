@@ -13,9 +13,23 @@ body,
   min-height: 100%;
 }
 
+:root {
+  --bottom-nav-offset: calc(70px + env(safe-area-inset-bottom));
+}
+
 body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: #1f2937;
+}
+
+.page-fade-enter-active,
+.page-fade-leave-active {
+  transition: opacity 140ms ease;
+}
+
+.page-fade-enter-from,
+.page-fade-leave-to {
+  opacity: 0;
 }
 
 /* Shared expand/collapse animation for conditional config panels. */
