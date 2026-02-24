@@ -1,7 +1,6 @@
 <template>
   <div class="page-container">
     <div class="config-wrapper">
-      <ConfigS3ConfigForm v-model="config.s3" />
       <ConfigCompressConfigForm v-model="config.compress" />
       <ConfigRenameConfigForm v-model="config.rename" />
     </div>
@@ -13,16 +12,8 @@ const { config, loadConfig, saveConfigToStorage } = useConfig()
 const configReady = ref(false)
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null
 
-const persistConfig = async () => {
-  try {
-    await $fetch('/api/config', {
-      method: 'POST',
-      body: config.value,
-    })
-    saveConfigToStorage()
-  } catch (error) {
-    console.error('自动保存配置失败:', error)
-  }
+const persistConfig = () => {
+  saveConfigToStorage()
 }
 
 watch(
@@ -35,8 +26,8 @@ watch(
     }
 
     autoSaveTimer = setTimeout(() => {
-      void persistConfig()
-    }, 300)
+      persistConfig()
+    }, 400)
   },
   { deep: true },
 )
@@ -59,15 +50,15 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #faf8f5;
-  padding: 40px 24px;
+  background: var(--color-page-bg);
+  padding: var(--space-10) var(--space-6);
 }
 
 .config-wrapper {
   width: 100%;
-  max-width: 480px;
+  max-width: 560px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--space-6);
 }
 </style>

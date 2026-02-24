@@ -1,7 +1,15 @@
 <template>
   <div class="file-item">
-    <div class="file-preview">
-      <img :src="file.preview" :alt="file.name" class="preview-image" />
+    <div class="file-preview" :class="{ empty: !file.preview }">
+      <img
+        v-if="file.preview"
+        :src="file.preview"
+        :alt="file.name"
+        class="preview-image"
+        loading="lazy"
+        decoding="async"
+      />
+      <span v-else class="preview-placeholder">IMG</span>
     </div>
 
     <div v-if="file.uploaded" class="file-url" @click="$emit('copy', file.url, file)">
@@ -66,14 +74,14 @@ defineEmits<{
 
 <style scoped>
 .file-item {
-  --card-bg: #ffffff;
+  --card-bg: var(--color-surface);
   display: flex;
   align-items: center;
   gap: 16px;
   padding: 12px 16px;
   background: var(--card-bg);
   border-radius: 12px !important;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-border);
 }
 
 .file-preview {
@@ -82,6 +90,20 @@ defineEmits<{
   flex-shrink: 0;
   border-radius: 8px !important;
   overflow: hidden;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+}
+
+.file-preview.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-placeholder {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
 }
 
 .preview-image {
@@ -93,8 +115,8 @@ defineEmits<{
 .file-url {
   flex: 1;
   font-size: 12px;
-  color: #6b7280;
-  background: #f9fafb;
+  color: var(--color-text-muted);
+  background: var(--color-surface-alt);
   padding: 8px 12px;
   border-radius: 8px !important;
   cursor: pointer;
@@ -105,8 +127,8 @@ defineEmits<{
 }
 
 .file-url:hover {
-  background: #f3f4f6;
-  color: #3b82f6;
+  background: var(--color-hover);
+  color: var(--color-primary);
 }
 
 .file-actions {

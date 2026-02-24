@@ -1,11 +1,10 @@
-// S3 存储配置
+// 服务端 S3 配置（由环境变量托管）
 export interface S3Config {
   endpoint: string
   accessKeyId: string
   secretAccessKey: string
   bucket: string
   region: string
-  publicUrl: string
   uploadDir?: string
 }
 
@@ -22,9 +21,8 @@ export interface CompressConfig {
   format: 'jpg' | 'png' | 'webp' | 'avif'
 }
 
-// 完整应用配置
-export interface AppConfig {
-  s3: S3Config
+// 客户端可配置项（不包含敏感信息）
+export interface ClientConfig {
   rename: RenameConfig
   compress: CompressConfig
 }
@@ -35,7 +33,7 @@ export interface FileItem {
   path: string
   type: 'file' | 'folder'
   size?: number
-  lastModified?: Date
+  lastModified?: string
 }
 
 // 预览文件（上传前）

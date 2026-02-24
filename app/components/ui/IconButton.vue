@@ -36,9 +36,9 @@ withDefaults(defineProps<Props>(), {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--card-bg, #ffffff) !important;
-  border: none !important;
-  border-radius: 8px !important;
+  background: var(--card-bg, var(--color-surface));
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -49,7 +49,13 @@ withDefaults(defineProps<Props>(), {
 }
 
 .icon-btn:hover:not(:disabled) {
-  background: var(--card-bg, #ffffff) !important;
+  background: var(--card-bg, var(--color-surface));
+  filter: brightness(0.96);
+}
+
+.icon-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .icon-btn:disabled {
@@ -58,27 +64,15 @@ withDefaults(defineProps<Props>(), {
 }
 
 .icon-btn.upload :deep(svg) {
-  color: #3b82f6;
-}
-
-.icon-btn.upload:hover:not(:disabled) {
-  background: var(--card-bg, #ffffff) !important;
+  color: var(--color-primary);
 }
 
 .icon-btn.copy :deep(svg) {
-  color: #10b981;
-}
-
-.icon-btn.copy:hover:not(:disabled) {
-  background: var(--card-bg, #ffffff) !important;
+  color: var(--color-success);
 }
 
 .icon-btn.delete :deep(svg) {
-  color: #ef4444;
-}
-
-.icon-btn.delete:hover:not(:disabled) {
-  background: var(--card-bg, #ffffff) !important;
+  color: var(--color-danger);
 }
 
 .loading-spinner {

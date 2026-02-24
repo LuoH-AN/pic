@@ -37,7 +37,8 @@
       <div v-if="model.strategy === 'custom'" class="custom-config">
         <div class="form-group">
           <label class="form-label">自定义命名格式</label>
-          <UInput v-model="model.customFormat" placeholder="{Y}{m}{d}-{filename}" size="lg" class="styled-input"/>
+          <UInput v-model="model.customFormat" placeholder="album/{Y}/{m}/{filename}" size="lg" class="styled-input"/>
+          <p class="format-tip">支持使用 <code>/</code> 分目录，例如 <code>travel/{Y}/{m}/{filename}</code></p>
         </div>
 
         <div class="form-group">
@@ -51,8 +52,8 @@
                 </tr>
               </thead>
               <tbody>
-                <tr><td>{Y}</td><td>年份 (2022)</td></tr>
-                <tr><td>{y}</td><td>两位数年份 (22)</td></tr>
+                <tr><td>{Y}</td><td>年份 (例如 2026)</td></tr>
+                <tr><td>{y}</td><td>两位数年份 (例如 26)</td></tr>
                 <tr><td>{m}</td><td>月份 (01-12)</td></tr>
                 <tr><td>{d}</td><td>日期 (01-31)</td></tr>
                 <tr><td>{h}</td><td>小时 (00-23)</td></tr>
@@ -78,6 +79,19 @@
 import type { RenameConfig } from '~~/types'
 
 const model = defineModel<RenameConfig>({ required: true })
+
+watch(
+  () => model.value.customFormat,
+  (value) => {
+    if (model.value.strategy !== 'custom') return
+    const sanitized = (value || '')
+      .replace(/\\/g, '/')
+      .replace(/[\u0000-\u001F\u007F]/g, '')
+    if (sanitized !== value) {
+      model.value.customFormat = sanitized
+    }
+  },
+)
 </script>
 
 <style scoped>
@@ -90,7 +104,7 @@ const model = defineModel<RenameConfig>({ required: true })
 .form-label {
   font-size: 14px;
   font-weight: 500;
-  color: #374151;
+  color: var(--color-text-secondary);
 }
 
 .styled-input :deep(input) {
@@ -99,18 +113,24 @@ const model = defineModel<RenameConfig>({ required: true })
   padding: 0 12px;
   box-sizing: border-box;
   border-radius: 12px !important;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-border);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .styled-input :deep(input:focus) {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.12);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-ring);
   outline: none;
 }
 
 .styled-input {
   width: 100%;
+}
+
+.format-tip {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--color-text-muted);
 }
 
 /* 重命名策略选择样式 */
@@ -124,23 +144,23 @@ const model = defineModel<RenameConfig>({ required: true })
   align-items: center;
   gap: 8px;
   padding: 12px 16px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: white;
+  background: var(--color-surface);
   flex: 1;
   justify-content: center;
 }
 
 .strategy-option:hover {
-  border-color: #d1d5db;
-  background: #f9fafb;
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-alt);
 }
 
 .strategy-option.active {
-  border-color: #3b82f6;
-  background: #eff6ff;
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
 }
 
 .strategy-radio {
@@ -155,11 +175,11 @@ const model = defineModel<RenameConfig>({ required: true })
 .strategy-name {
   font-size: 14px;
   font-weight: 500;
-  color: #374151;
+  color: var(--color-text-secondary);
 }
 
 .strategy-option.active .strategy-name {
-  color: #3b82f6;
+  color: var(--color-primary);
 }
 
 .custom-config {
@@ -169,10 +189,10 @@ const model = defineModel<RenameConfig>({ required: true })
 }
 
 .placeholder-table-wrap {
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   overflow: hidden;
-  background: #ffffff;
+  background: var(--color-surface);
 }
 
 .placeholder-table {
@@ -186,35 +206,35 @@ const model = defineModel<RenameConfig>({ required: true })
 .placeholder-table td {
   padding: 10px 12px;
   text-align: left;
-  color: #475569;
+  color: var(--color-text-secondary);
 }
 
 .placeholder-table th + th,
 .placeholder-table td + td {
-  border-left: 1px solid #e5e7eb;
+  border-left: 1px solid var(--color-border);
 }
 
 .placeholder-table tbody tr + tr td {
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--color-border);
 }
 
 .placeholder-table tbody tr:nth-child(even) td {
-  background: #fcfcfd;
+  background: var(--color-surface-alt);
 }
 
 .placeholder-table tbody tr:hover td {
-  background: #f8fafc;
+  background: var(--color-hover);
 }
 
 .placeholder-table td:first-child {
   width: 36%;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
-  color: #1d4ed8;
+  color: var(--color-primary);
 }
 
 .placeholder-table th {
-  background-color: #faf8f5;
-  color: #334155;
+  background-color: var(--color-page-bg);
+  color: var(--color-text-primary);
   font-weight: 600;
 }
 </style>

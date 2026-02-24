@@ -15,11 +15,41 @@ body,
 
 :root {
   --bottom-nav-offset: calc(70px + env(safe-area-inset-bottom));
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-10: 40px;
+
+  --color-page-bg: #f7f5ef;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f3f2ee;
+  --color-hover: #eef2f7;
+
+  --color-border: #e3e0d9;
+  --color-border-strong: #d2cfc8;
+
+  --color-text-primary: #1f2937;
+  --color-text-secondary: #334155;
+  --color-text-muted: #64748b;
+
+  --color-primary: #1d4ed8;
+  --color-primary-strong: #1e40af;
+  --color-primary-soft: #dbeafe;
+  --color-primary-surface: rgba(29, 78, 216, 0.06);
+  --color-primary-ring: rgba(29, 78, 216, 0.18);
+
+  --color-success: #0f766e;
+  --color-danger: #b91c1c;
+  --color-danger-soft: #fca5a5;
+  --color-danger-surface: #fef2f2;
+
+  --shadow-soft: 0 10px 32px rgba(15, 23, 42, 0.12);
 }
 
 body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color: #1f2937;
+  color: var(--color-text-primary);
+  background: var(--color-page-bg);
 }
 
 .page-fade-enter-active,

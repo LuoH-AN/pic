@@ -26,9 +26,9 @@ const slots = useSlots()
 
 <style scoped>
 .form-card {
-  background: white;
+  background: var(--color-surface);
   border-radius: 12px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-border);
   padding: 20px 24px;
 }
 
@@ -48,7 +48,7 @@ const slots = useSlots()
 .card-title {
   font-size: 18px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--color-text-primary);
   margin: 0;
 }
 

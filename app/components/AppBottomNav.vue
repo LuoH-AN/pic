@@ -74,9 +74,9 @@ const isActive = (to: string) => {
   gap: 10px;
   padding: 6px 14px;
   border-radius: 999px;
-  border: 1px solid #dbd8d2;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.12);
+  border: 1px solid var(--color-border);
+  background: color-mix(in oklab, var(--color-surface) 94%, transparent);
+  box-shadow: var(--shadow-soft);
   backdrop-filter: blur(10px);
 }
 
@@ -84,7 +84,7 @@ const isActive = (to: string) => {
   width: 52px;
   height: 40px;
   border-radius: 14px;
-  color: #1e1b2f;
+  color: var(--color-text-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -97,13 +97,13 @@ const isActive = (to: string) => {
 }
 
 .nav-item:hover {
-  color: #1d4ed8;
-  background: #eef2ff;
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
 }
 
 .nav-item.active {
-  color: #2563eb;
-  background: #dbeafe;
+  color: var(--color-primary-strong);
+  background: var(--color-primary-soft);
 }
 
 @media (max-width: 768px) {

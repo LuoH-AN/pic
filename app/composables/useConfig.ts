@@ -1,16 +1,10 @@
-import type { AppConfig } from '~~/types'
+import type { ClientConfig, CompressConfig } from '~~/types'
 
 const STORAGE_KEY = 'pic-app-config'
 
-const defaultConfig: AppConfig = {
-  s3: {
-    endpoint: '',
-    accessKeyId: '',
-    secretAccessKey: '',
-    bucket: '',
-    region: 'auto',
-    publicUrl: '',
-  },
+const COMPRESS_FORMATS: CompressConfig['format'][] = ['jpg', 'png', 'webp', 'avif']
+
+const defaultConfig: ClientConfig = {
   rename: {
     strategy: 'timestamp',
     customFormat: '{filename}',
@@ -23,10 +17,11 @@ const defaultConfig: AppConfig = {
 }
 
 export function useConfig() {
-  const config = ref<AppConfig>(JSON.parse(JSON.stringify(defaultConfig)))
+  const config = useState<ClientConfig>('client-config', () => structuredClone(defaultConfig))
+  const loaded = useState<boolean>('client-config-loaded', () => false)
 
   const getStorage = () => {
-    if (!process.client || typeof window === 'undefined') return null
+    if (!import.meta.client || typeof window === 'undefined') return null
 
     try {
       return window.localStorage
@@ -35,16 +30,33 @@ export function useConfig() {
     }
   }
 
-  const normalizeConfig = (raw: unknown): AppConfig => {
-    const parsed = (raw && typeof raw === 'object') ? (raw as Partial<AppConfig>) : {}
+  const normalizeQuality = (raw: unknown) => {
+    const parsed = Number(raw)
+    if (!Number.isFinite(parsed)) return defaultConfig.compress.quality
+    return Math.max(1, Math.min(100, Math.round(parsed)))
+  }
+
+  const normalizeConfig = (raw: unknown): ClientConfig => {
+    const parsed = (raw && typeof raw === 'object') ? (raw as Partial<ClientConfig>) : {}
+    const nextFormat = parsed.compress?.format
+    const safeFormat = COMPRESS_FORMATS.includes(nextFormat as CompressConfig['format'])
+      ? (nextFormat as CompressConfig['format'])
+      : defaultConfig.compress.format
+
     return {
-      s3: { ...defaultConfig.s3, ...(parsed.s3 || {}) },
-      rename: { ...defaultConfig.rename, ...(parsed.rename || {}) },
-      compress: { ...defaultConfig.compress, ...(parsed.compress || {}) },
+      rename: {
+        strategy: parsed.rename?.strategy || defaultConfig.rename.strategy,
+        customFormat: parsed.rename?.customFormat?.trim() || defaultConfig.rename.customFormat,
+      },
+      compress: {
+        enabled: Boolean(parsed.compress?.enabled),
+        quality: normalizeQuality(parsed.compress?.quality),
+        format: safeFormat,
+      },
     }
   }
 
-  const readStoredConfig = (): AppConfig | null => {
+  const readStoredConfig = (): ClientConfig | null => {
     const storage = getStorage()
     if (!storage) return null
 
@@ -59,10 +71,12 @@ export function useConfig() {
   }
 
   const loadConfig = () => {
+    if (loaded.value) return
     const stored = readStoredConfig()
     if (stored) {
       config.value = stored
     }
+    loaded.value = true
   }
 
   const saveConfigToStorage = () => {
@@ -76,8 +90,9 @@ export function useConfig() {
     }
   }
 
-  const getConfig = (): AppConfig | null => {
-    return readStoredConfig()
+  const getConfig = (): ClientConfig => {
+    loadConfig()
+    return config.value
   }
 
   return { config, loadConfig, saveConfigToStorage, getConfig }

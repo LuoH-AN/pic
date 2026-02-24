@@ -1,75 +1,64 @@
-import { defineEventHandler, getQuery, createError } from 'h3'
+import { defineEventHandler, getQuery } from 'h3'
 import { ListObjectsV2Command } from '@aws-sdk/client-s3'
 import { createS3Client } from '~~/server/utils/s3'
-import { parseConfigFromHeader, validateS3Config } from '~~/server/utils/config'
+import { getServerS3Config, normalizeRelativePath, toRelativePath } from '~~/server/utils/config'
+import type { FileItem } from '~~/types'
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
-  const appConfig = parseConfigFromHeader(event)
-  const { s3: s3Config } = appConfig
+  const s3Config = getServerS3Config(event)
+  const userPath = normalizeRelativePath(query.path, 'path')
 
-  validateS3Config(s3Config)
+  const s3Client = createS3Client(s3Config)
+  const basePrefix = s3Config.uploadDir
+    ? (userPath ? `${s3Config.uploadDir}/${userPath}` : s3Config.uploadDir)
+    : userPath
+  const normalizedPrefix = basePrefix ? `${basePrefix}/` : ''
 
-  // User requested path (relative to uploadDir)
-  const userPath = (query.path as string) || ''
-  const baseDir = s3Config.uploadDir || ''
+  const folderMap = new Map<string, FileItem>()
+  const fileMap = new Map<string, FileItem>()
 
-  // Build full S3 prefix
-  let s3Prefix = baseDir
-  if (userPath) {
-    s3Prefix = baseDir ? `${baseDir}/${userPath}` : userPath
-  }
-
-  // Ensure prefix ends with slash for CommonPrefixes to work
-  if (s3Prefix && !s3Prefix.endsWith('/')) {
-    s3Prefix = s3Prefix + '/'
-  }
+  let continuationToken: string | undefined
 
   try {
-    const s3Client = createS3Client(s3Config)
+    do {
+      const response = await s3Client.send(new ListObjectsV2Command({
+        Bucket: s3Config.bucket,
+        Prefix: normalizedPrefix,
+        Delimiter: '/',
+        ContinuationToken: continuationToken,
+      }))
 
-    const command = new ListObjectsV2Command({
-      Bucket: s3Config.bucket,
-      Prefix: s3Prefix,
-      Delimiter: '/',
-    })
-
-    const response = await s3Client.send(command)
-
-    // Process folders (CommonPrefixes)
-    const folders = (response.CommonPrefixes || []).map((item) => {
-      const fullPath = item.Prefix || ''
-      let relativePath = fullPath
-      if (baseDir) {
-        relativePath = fullPath.replace(new RegExp(`^${baseDir}/`), '')
+      for (const item of response.CommonPrefixes || []) {
+        const fullPath = (item.Prefix || '').replace(/\/$/, '')
+        const relativePath = toRelativePath(s3Config, fullPath)
+        if (!relativePath) continue
+        const name = relativePath.split('/').filter(Boolean).pop()
+        if (!name) continue
+        folderMap.set(relativePath, { name, path: relativePath, type: 'folder' })
       }
-      relativePath = relativePath.replace(/\/$/, '')
-      const name = relativePath.split('/').filter(Boolean).pop() || ''
-      return {
-        name: name,
-        path: relativePath,
-        type: 'folder' as const,
-      }
-    }).filter(f => f.name)
 
-    // Process files (Contents) - exclude folders
-    const files = (response.Contents || []).map((item) => {
-      const fullPath = item.Key || ''
-      if (fullPath.endsWith('/')) return null
+      for (const item of response.Contents || []) {
+        const fullPath = item.Key || ''
+        if (!fullPath || fullPath.endsWith('/')) continue
+        const relativePath = toRelativePath(s3Config, fullPath)
+        if (!relativePath) continue
+        const name = relativePath.split('/').filter(Boolean).pop()
+        if (!name) continue
+        fileMap.set(relativePath, {
+          name,
+          path: relativePath,
+          type: 'file',
+          size: item.Size,
+          lastModified: item.LastModified ? item.LastModified.toISOString() : undefined,
+        })
+      }
 
-      let relativePath = fullPath
-      if (baseDir) {
-        relativePath = fullPath.replace(new RegExp(`^${baseDir}/`), '')
-      }
-      const name = relativePath.split('/').filter(Boolean).pop() || ''
-      return {
-        name: name,
-        path: relativePath,
-        type: 'file' as const,
-        size: item.Size,
-        lastModified: item.LastModified,
-      }
-    }).filter((f): f is NonNullable<typeof f> => f !== null && f.name !== '')
+      continuationToken = response.IsTruncated ? response.NextContinuationToken : undefined
+    } while (continuationToken)
+
+    const folders = Array.from(folderMap.values()).sort((a, b) => a.name.localeCompare(b.name))
+    const files = Array.from(fileMap.values()).sort((a, b) => a.name.localeCompare(b.name))
 
     return {
       success: true,

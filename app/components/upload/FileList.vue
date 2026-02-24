@@ -3,7 +3,7 @@
     <div class="file-list">
       <UploadFilePreviewItem
         v-for="(file, index) in files"
-        :key="index"
+        :key="file.preview"
         :file="file"
         @upload="$emit('upload', file)"
         @copy="(url, targetFile) => $emit('copy', url, targetFile)"
@@ -17,6 +17,7 @@
         <UiIconButton
           variant="upload"
           :loading="isUploading"
+          :disabled="!hasPendingUpload"
           title="全部上传"
           @click="$emit('uploadAll')"
         >
@@ -42,7 +43,7 @@ interface Props {
   isUploading?: boolean
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 defineEmits<{
   upload: [file: PreviewFile]
   copy: [url?: string, file?: PreviewFile]
@@ -50,6 +51,8 @@ defineEmits<{
   uploadAll: []
   removeAll: []
 }>()
+
+const hasPendingUpload = computed(() => props.files.some(file => !file.uploaded && !file.uploading))
 </script>
 
 <style scoped>
@@ -76,7 +79,7 @@ defineEmits<{
 }
 
 .right-actions {
-  --card-bg: #faf8f5;
+  --card-bg: var(--color-surface-alt);
   display: flex;
   gap: 8px;
 }

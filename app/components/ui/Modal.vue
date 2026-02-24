@@ -1,7 +1,13 @@
 <template>
   <Teleport to="body">
     <Transition name="modal">
-      <div v-if="modelValue" class="modal-overlay" @click="close">
+      <div
+        v-if="modelValue"
+        class="modal-overlay"
+        role="dialog"
+        aria-modal="true"
+        @click="close"
+      >
         <div class="modal-content" :class="contentClass" @click.stop>
           <div class="modal-header" :class="headerClass">
             <h3>{{ title }}</h3>
@@ -34,7 +40,7 @@ interface Props {
   footerClass?: string
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   showClose: true,
   contentClass: '',
   headerClass: '',
@@ -48,13 +54,27 @@ const emit = defineEmits<{
 const close = () => {
   emit('update:modelValue', false)
 }
+
+const handleEsc = (event: KeyboardEvent) => {
+  if (event.key === 'Escape' && props.modelValue) {
+    close()
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('keydown', handleEsc)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', handleEsc)
+})
 </script>
 
 <style scoped>
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(15, 23, 42, 0.52);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -63,7 +83,7 @@ const close = () => {
 }
 
 .modal-content {
-  background: white;
+  background: var(--color-surface);
   border-radius: 12px;
   width: 100%;
   max-width: 400px;
@@ -83,7 +103,7 @@ const close = () => {
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--color-text-primary);
 }
 
 .close-btn {
@@ -100,13 +120,13 @@ const close = () => {
 }
 
 .close-btn:hover {
-  background: #f3f4f6;
+  background: var(--color-hover);
 }
 
 .close-btn svg {
   width: 20px;
   height: 20px;
-  color: #6b7280;
+  color: var(--color-text-muted);
 }
 
 .modal-body {
@@ -116,7 +136,7 @@ const close = () => {
 .modal-body p {
   margin: 0;
   font-size: 14px;
-  color: #374151;
+  color: var(--color-text-secondary);
 }
 
 .modal-footer {

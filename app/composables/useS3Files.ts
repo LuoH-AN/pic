@@ -1,39 +1,50 @@
 import type { FileItem } from '~~/types'
 
+const IMAGE_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'avif'])
+
+function normalizeClientPath(path: string) {
+  const raw = (path || '').trim()
+  if (!raw) return ''
+  return raw
+    .replace(/\\/g, '/')
+    .replace(/^\/+|\/+$/g, '')
+    .split('/')
+    .filter(part => part && part !== '.' && part !== '..')
+    .join('/')
+}
+
+function encodePath(path: string) {
+  return path
+    .split('/')
+    .filter(Boolean)
+    .map(part => encodeURIComponent(part))
+    .join('/')
+}
+
 export function useS3Files() {
-  const { getConfig } = useConfig()
+  const runtimeConfig = useRuntimeConfig()
   const { showToast } = useAppToast()
 
   const currentPath = ref('')
   const folders = ref<FileItem[]>([])
   const files = ref<FileItem[]>([])
   const loading = ref(false)
+  const activeRequestId = ref(0)
 
-  const pathParts = computed(() => {
-    if (!currentPath.value) return []
-    return currentPath.value.split('/').filter(Boolean)
-  })
-
-  const imageFiles = computed(() => {
-    return files.value.filter(file => isImage(file.name))
-  })
-
-  const hasItems = computed(() => folders.value.length > 0 || imageFiles.value.length > 0)
+  const imageFiles = computed(() => files.value.filter(file => isImage(file.name)))
 
   const isImage = (name?: string) => {
     if (!name) return false
     const ext = name.split('.').pop()?.toLowerCase()
-    return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'avif'].includes(ext || '')
+    return IMAGE_EXTENSIONS.has(ext || '')
   }
 
-  const fetchFiles = async () => {
-    const config = getConfig()
-    if (!config) {
-      showToast('请先配置 S3 信息')
-      return
-    }
-
+  const fetchFiles = async (path = currentPath.value) => {
+    const normalizedPath = normalizeClientPath(path)
+    const requestId = activeRequestId.value + 1
+    activeRequestId.value = requestId
     loading.value = true
+
     try {
       const response = await $fetch<{
         success: boolean
@@ -41,61 +52,53 @@ export function useS3Files() {
         files: FileItem[]
       }>('/api/s3/files', {
         method: 'GET',
-        params: { path: currentPath.value },
-        headers: {
-          'x-s3-config': JSON.stringify(config),
-        },
+        params: { path: normalizedPath },
       })
 
+      if (requestId !== activeRequestId.value) return
       if (response.success) {
+        currentPath.value = normalizedPath
         folders.value = response.folders
         files.value = response.files
       }
     } catch (error) {
+      if (requestId !== activeRequestId.value) return
       console.error('获取文件列表失败:', error)
       showToast('获取文件列表失败')
     } finally {
-      loading.value = false
+      if (requestId === activeRequestId.value) {
+        loading.value = false
+      }
     }
   }
 
-  const navigateTo = (path: string) => {
-    currentPath.value = path
-    fetchFiles()
+  const navigateTo = async (path: string) => {
+    const normalizedPath = normalizeClientPath(path)
+    await fetchFiles(normalizedPath)
   }
 
   const getImageUrl = (file: FileItem) => {
-    const config = getConfig()
-    if (!config) return ''
-
-    const fullPath = getFullPath(file.path)
-
-    if (config.s3.publicUrl) {
-      return `${config.s3.publicUrl}/${fullPath}`
+    const normalizedFilePath = normalizeClientPath(file.path)
+    const uploadDir = normalizeClientPath(runtimeConfig.public.s3UploadDir || '')
+    const fullPath = uploadDir ? `${uploadDir}/${normalizedFilePath}` : normalizedFilePath
+    const encoded = encodePath(fullPath)
+    const base = String(runtimeConfig.public.s3PublicBaseUrl || '').replace(/\/+$/, '')
+    const fallbackBase = `${String(runtimeConfig.public.s3PublicEndpoint || '').replace(/\/+$/, '')}/${runtimeConfig.public.s3Bucket}`
+    const urlBase = base || fallbackBase
+    if (!urlBase || urlBase === '/') {
+      return `/${encoded}`
     }
-
-    return `${config.s3.endpoint}/${fullPath}`
-  }
-
-  const getFullPath = (path: string) => {
-    const config = getConfig()
-    const uploadDir = config?.s3?.uploadDir || ''
-
-    if (uploadDir) {
-      return `${uploadDir}/${path}`
-    }
-    return path
+    return `${urlBase}/${encoded}`
   }
 
   const deleteFile = async (path: string) => {
-    const config = getConfig()
-    if (!config) return false
+    const normalizedPath = normalizeClientPath(path)
+    if (!normalizedPath) return false
 
     try {
       await $fetch('/api/s3/delete', {
         method: 'DELETE',
-        body: { path: getFullPath(path) },
-        headers: { 'x-s3-config': JSON.stringify(config) },
+        body: { path: normalizedPath },
       })
       showToast('删除成功')
       await fetchFiles()
@@ -108,21 +111,25 @@ export function useS3Files() {
   }
 
   const renameFile = async (path: string, newName: string) => {
-    const config = getConfig()
-    if (!config) return false
+    const normalizedPath = normalizeClientPath(path)
+    if (!normalizedPath) return false
 
     try {
       await $fetch('/api/s3/rename', {
         method: 'POST',
-        body: { path: getFullPath(path), newName },
-        headers: { 'x-s3-config': JSON.stringify(config) },
+        body: { path: normalizedPath, newName },
       })
       showToast('重命名成功')
       await fetchFiles()
       return true
-    } catch (error) {
+    } catch (error: unknown) {
+      const statusCode = (error as { statusCode?: number })?.statusCode
+      if (statusCode === 409) {
+        showToast('目标文件名已存在')
+      } else {
+        showToast('重命名失败')
+      }
       console.error('重命名失败:', error)
-      showToast('重命名失败')
       return false
     }
   }
@@ -132,9 +139,7 @@ export function useS3Files() {
     folders,
     files,
     loading,
-    pathParts,
     imageFiles,
-    hasItems,
     fetchFiles,
     navigateTo,
     getImageUrl,

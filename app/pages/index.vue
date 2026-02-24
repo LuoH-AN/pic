@@ -29,8 +29,8 @@ const { show, message } = useAppToast()
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #faf8f5;
-  padding: 40px 24px;
+  background: var(--color-page-bg);
+  padding: var(--space-10) var(--space-6);
 }
 
 .upload-wrapper {

@@ -2,10 +2,15 @@
   <div
     class="upload-zone"
     :class="{ 'drag-over': isDragOver }"
+    role="button"
+    tabindex="0"
+    aria-label="上传图片"
     @dragover.prevent="handleDragOver"
     @dragleave.prevent="handleDragLeave"
     @drop.prevent="handleDrop"
     @click="triggerFileInput"
+    @keydown.enter.prevent="triggerFileInput"
+    @keydown.space.prevent="triggerFileInput"
   >
     <input
       ref="fileInput"
@@ -57,7 +62,7 @@ const handleDrop = (event: DragEvent) => {
 
 <style scoped>
 .upload-zone {
-  border: 2px dashed #d1d5db;
+  border: 2px dashed var(--color-border-strong);
   background: transparent;
   padding: 60px 40px;
   text-align: center;
@@ -68,8 +73,13 @@ const handleDrop = (event: DragEvent) => {
 
 .upload-zone:hover,
 .upload-zone.drag-over {
-  border-color: #3b82f6;
-  background: rgba(59, 130, 246, 0.02);
+  border-color: var(--color-primary);
+  background: var(--color-primary-surface);
+}
+
+.upload-zone:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .hidden-input {
@@ -79,6 +89,6 @@ const handleDrop = (event: DragEvent) => {
 .upload-icon {
   width: 80px;
   height: 80px;
-  color: #9ca3af;
+  color: var(--color-text-muted);
 }
 </style>

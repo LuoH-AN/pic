@@ -8,6 +8,6 @@
 <style scoped>
 .layout-shell {
   min-height: 100vh;
-  background: #faf8f5;
+  background: var(--color-page-bg);
 }
 </style>

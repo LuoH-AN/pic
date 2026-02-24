@@ -1,7 +1,14 @@
 <template>
   <Teleport to="body">
     <Transition name="toast">
-      <div v-if="modelValue" class="toast">{{ message }}</div>
+      <div
+        v-if="modelValue"
+        class="toast"
+        role="status"
+        aria-live="polite"
+      >
+        <span>{{ message }}</span>
+      </div>
     </Transition>
   </Teleport>
 </template>
@@ -21,12 +28,12 @@ defineProps<Props>()
   bottom: 40px;
   left: 50%;
   transform: translateX(-50%);
-  background: #1f2937 !important;
-  color: white;
+  background: var(--color-text-primary);
+  color: #fff;
   padding: 12px 24px;
   border-radius: 8px !important;
   font-size: 14px;
-  z-index: 1000;
+  z-index: 4200;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
@@ -40,4 +47,5 @@ defineProps<Props>()
   opacity: 0;
   transform: translateX(-50%) translateY(20px);
 }
+
 </style>
