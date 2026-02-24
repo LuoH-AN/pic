@@ -1,5 +1,6 @@
 <template>
   <div class="layout-shell">
+    <ThemeModeToggle />
     <slot />
     <AppBottomNav />
   </div>

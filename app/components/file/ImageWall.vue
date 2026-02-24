@@ -144,7 +144,12 @@ const getPlaceholderStyle = (file: FileItem) => {
 .image-loading {
   position: absolute;
   inset: 0;
-  background: linear-gradient(100deg, #eef2f7 30%, #f8fafc 45%, #eef2f7 60%);
+  background: linear-gradient(
+    100deg,
+    var(--color-shimmer-start) 30%,
+    var(--color-shimmer-mid) 45%,
+    var(--color-shimmer-start) 60%
+  );
   background-size: 220% 100%;
   animation: imageShimmer 1.3s linear infinite;
   pointer-events: none;

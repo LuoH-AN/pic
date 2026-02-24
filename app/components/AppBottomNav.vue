@@ -14,10 +14,11 @@
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        stroke-width="2"
+        stroke-width="1.9"
       >
-        <path d="M3 11l9-8 9 8" />
-        <path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10" />
+        <path d="M12 16V5" />
+        <path d="m7.5 9 4.5-4 4.5 4" />
+        <path d="M4 18.5v.5a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-.5" />
       </svg>
 
       <svg
@@ -25,12 +26,11 @@
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        stroke-width="2"
+        stroke-width="1.9"
       >
-        <rect x="4" y="4" width="16" height="16" rx="2" />
-        <path d="M8 9h8" />
-        <path d="M8 13h8" />
-        <path d="M8 17h5" />
+        <rect x="3" y="5" width="18" height="14" rx="2.5" />
+        <circle cx="9" cy="10" r="1.2" />
+        <path d="m21 15-4.5-4.5L8 19" />
       </svg>
 
       <svg
@@ -38,10 +38,14 @@
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        stroke-width="2"
+        stroke-width="1.9"
       >
-        <rect x="3" y="3" width="18" height="18" rx="2" />
-        <polyline points="7 12 10 15 17 8" />
+        <line x1="5" y1="7" x2="19" y2="7" />
+        <circle cx="9" cy="7" r="1.7" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+        <circle cx="15" cy="12" r="1.7" />
+        <line x1="5" y1="17" x2="19" y2="17" />
+        <circle cx="11" cy="17" r="1.7" />
       </svg>
     </NuxtLink>
   </nav>
@@ -66,56 +70,75 @@ const isActive = (to: string) => {
 .bottom-nav {
   position: fixed;
   left: 50%;
-  bottom: calc(14px + env(safe-area-inset-bottom));
+  bottom: calc(12px + env(safe-area-inset-bottom));
   transform: translateX(-50%);
   z-index: 2300;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 14px;
+  gap: 7px;
+  padding: 7px 9px;
   border-radius: 999px;
-  border: 1px solid var(--color-border);
-  background: color-mix(in oklab, var(--color-surface) 94%, transparent);
-  box-shadow: var(--shadow-soft);
-  backdrop-filter: blur(10px);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  box-shadow: none;
 }
 
 .nav-item {
-  width: 52px;
-  height: 40px;
-  border-radius: 14px;
-  color: var(--color-text-primary);
+  width: 44px;
+  height: 34px;
+  border-radius: 999px;
+  color: var(--color-text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.2s ease, background-color 0.2s ease;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .nav-item svg {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .nav-item:hover {
   color: var(--color-primary);
-  background: var(--color-primary-soft);
+  background: var(--color-hover);
+  transform: translateY(-1px);
 }
 
 .nav-item.active {
   color: var(--color-primary-strong);
-  background: var(--color-primary-soft);
+  background: var(--color-primary-surface);
+  box-shadow: inset 0 0 0 1px var(--color-primary-ring);
+}
+
+.nav-item:focus-visible {
+  outline: 2px solid var(--color-primary-ring);
+  outline-offset: 2px;
 }
 
 @media (max-width: 768px) {
   .bottom-nav {
-    gap: 8px;
-    padding: 6px 10px;
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    gap: 5px;
+    padding: 6px 7px;
   }
 
   .nav-item {
-    width: 46px;
-    height: 36px;
-    border-radius: 13px;
+    width: 40px;
+    height: 30px;
+    border-radius: 999px;
+  }
+
+  .nav-item svg {
+    width: 18px;
+    height: 18px;
   }
 }
 </style>

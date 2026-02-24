@@ -29,12 +29,12 @@ defineProps<Props>()
   left: 50%;
   transform: translateX(-50%);
   background: var(--color-text-primary);
-  color: #fff;
+  color: var(--color-toast-text);
   padding: 12px 24px;
   border-radius: 8px !important;
   font-size: 14px;
   z-index: 4200;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-toast);
 }
 
 .toast-enter-active,

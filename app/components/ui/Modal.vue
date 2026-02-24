@@ -74,7 +74,7 @@ onBeforeUnmount(() => {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.52);
+  background: var(--color-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
