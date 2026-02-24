@@ -1,10 +1,16 @@
 <template>
   <div class="layout-shell">
-    <ThemeModeToggle />
+    <ThemeModeToggle v-if="showThemeToggle" />
     <slot />
     <AppBottomNav />
   </div>
 </template>
+
+<script setup lang="ts">
+const route = useRoute()
+
+const showThemeToggle = computed(() => route.path === '/')
+</script>
 
 <style scoped>
 .layout-shell {
