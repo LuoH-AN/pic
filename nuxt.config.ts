@@ -5,6 +5,7 @@ export default defineNuxtConfig({
   modules: ['@nuxt/ui'],
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
+    accessPassword: process.env.ACCESS_PASSWORD || '',
     s3Endpoint: process.env.S3_ENDPOINT || '',
     s3Region: process.env.S3_REGION || 'auto',
     s3Bucket: process.env.S3_BUCKET || '',

@@ -28,6 +28,7 @@ S3_PUBLIC_ENDPOINT=       # 可选，未配置 PUBLIC_BASE_URL 时作为回退
 
 MAX_UPLOAD_SIZE_MB=20     # 可选，默认 20
 MAX_UPLOAD_COUNT=50       # 可选，默认 50
+ACCESS_PASSWORD=          # 可选，配置后启用访问密码；留空则关闭
 
 IMAGE_COMPRESS_MAX_WIDTH=2560              # 可选，默认 2560
 IMAGE_COMPRESS_MAX_HEIGHT=2560             # 可选，默认 2560
@@ -41,6 +42,7 @@ IMAGE_COMPRESS_TIMEOUT_MS=5000             # 可选，单档压缩超时阈值�
 说明：
 - `S3_PUBLIC_BASE_URL` 建议填 CDN 或可公开访问的前缀域名。
 - 如果不填 `S3_PUBLIC_BASE_URL`，前端会尝试拼接 `S3_PUBLIC_ENDPOINT/S3_BUCKET/...`。
+- `ACCESS_PASSWORD` 配置后，访问站点需先输入密码；未登录时无法调用上传、文件列表、删除、重命名等 API。
 - 上传页使用 `browser-image-compression`（Web Worker）先做客户端压缩与缩略图生成，避免大图导致页面白屏。
 - 仅当开启压缩时，服务端才会执行压缩。
 - 开启压缩后，图片必须压缩成功才会上传；失败会直接返回错误，不会回退上传原图。
