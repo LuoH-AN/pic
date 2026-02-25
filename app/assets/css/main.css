@@ -43,7 +43,9 @@ body,
   --color-danger-soft: #fca5a5;
   --color-danger-surface: #fef2f2;
 
+  --color-toast-bg: rgba(15, 23, 42, 0.92);
   --color-toast-text: #ffffff;
+  --color-toast-border: rgba(255, 255, 255, 0.14);
   --color-overlay: rgba(15, 23, 42, 0.52);
   --color-shimmer-start: #eef2f7;
   --color-shimmer-mid: #f8fafc;
@@ -76,7 +78,9 @@ body,
   --color-danger-soft: #f87171;
   --color-danger-surface: rgba(248, 113, 113, 0.16);
 
+  --color-toast-bg: rgba(2, 6, 23, 0.9);
   --color-toast-text: #eff6ff;
+  --color-toast-border: rgba(148, 163, 184, 0.3);
   --color-overlay: rgba(3, 9, 20, 0.72);
   --color-shimmer-start: #283346;
   --color-shimmer-mid: #33405a;
@@ -110,7 +114,9 @@ body,
     --color-danger-soft: #f87171;
     --color-danger-surface: rgba(248, 113, 113, 0.16);
 
+    --color-toast-bg: rgba(2, 6, 23, 0.9);
     --color-toast-text: #eff6ff;
+    --color-toast-border: rgba(148, 163, 184, 0.3);
     --color-overlay: rgba(3, 9, 20, 0.72);
     --color-shimmer-start: #283346;
     --color-shimmer-mid: #33405a;

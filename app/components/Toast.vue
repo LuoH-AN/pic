@@ -28,8 +28,10 @@ defineProps<Props>()
   bottom: 40px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--color-text-primary);
+  background: var(--color-toast-bg);
   color: var(--color-toast-text);
+  border: 1px solid var(--color-toast-border);
+  backdrop-filter: blur(8px);
   padding: 12px 24px;
   border-radius: 8px !important;
   font-size: 14px;
