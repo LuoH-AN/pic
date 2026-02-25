@@ -170,7 +170,6 @@ export function useUpload() {
   const uploadSingle = async (previewFile: PreviewFile) => {
     previewFile.uploading = true
     try {
-      const formData = new FormData()
       const clientConfig = getConfig()
       let uploadFile = previewFile.file
       let compressedByClient = false
@@ -194,43 +193,52 @@ export function useUpload() {
         }
       }
 
-      formData.append('file', uploadFile, uploadFile.name)
-      formData.append('rename', JSON.stringify(clientConfig.rename))
-      formData.append('compress', JSON.stringify(
-        compressedByClient
-          ? { ...clientConfig.compress, enabled: false }
-          : clientConfig.compress,
-      ))
-
-      const response = await $fetch<{
+      const presignResponse = await $fetch<{
         success: boolean
+        uploadUrl: string
+        method?: 'PUT'
+        headers?: Record<string, string>
         url: string
-        compressionRequested?: boolean
-        compressionApplied?: boolean
-        compressionMessage?: string
-      }>('/api/upload', {
+      }>('/api/s3/presign', {
         method: 'POST',
-        body: formData,
+        body: {
+          filename: uploadFile.name,
+          contentType: uploadFile.type || 'application/octet-stream',
+          rename: clientConfig.rename,
+        },
       })
 
-      if (response.success) {
-        previewFile.uploaded = true
-        previewFile.url = response.url
-        previewFile.copied = false
+      if (!presignResponse.success || !presignResponse.uploadUrl) {
+        throw new Error('上传签名失败')
+      }
 
-        if (compressedByClient) {
-          const ratio = 1 - (uploadFile.size / previewFile.file.size)
-          const ratioText = ratio > 0
-            ? `，体积降低 ${(ratio * 100).toFixed(1)}%`
-            : ''
-          showToast(`上传成功（客户端压缩${ratioText}）`)
-        } else if (response.compressionRequested && !response.compressionApplied && response.compressionMessage) {
-          showToast(`上传成功（${response.compressionMessage}）`)
-        } else if (response.compressionMessage) {
-          showToast(`上传成功（${response.compressionMessage}）`)
-        } else {
-          showToast('上传成功')
-        }
+      const uploadHeaders = { ...(presignResponse.headers || {}) }
+      if (!uploadHeaders['Content-Type']) {
+        uploadHeaders['Content-Type'] = uploadFile.type || 'application/octet-stream'
+      }
+
+      const uploadResult = await fetch(presignResponse.uploadUrl, {
+        method: presignResponse.method || 'PUT',
+        headers: uploadHeaders,
+        body: uploadFile,
+      })
+
+      if (!uploadResult.ok) {
+        throw new Error(`S3 上传失败: ${uploadResult.status}`)
+      }
+
+      previewFile.uploaded = true
+      previewFile.url = presignResponse.url
+      previewFile.copied = false
+
+      if (compressedByClient) {
+        const ratio = 1 - (uploadFile.size / previewFile.file.size)
+        const ratioText = ratio > 0
+          ? `，体积降低 ${(ratio * 100).toFixed(1)}%`
+          : ''
+        showToast(`上传成功（客户端压缩${ratioText}）`)
+      } else {
+        showToast('上传成功')
       }
     } catch (error) {
       console.error('上传失败:', error)
