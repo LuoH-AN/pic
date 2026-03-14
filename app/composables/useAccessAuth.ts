@@ -7,9 +7,9 @@ interface AccessAuthState extends AccessSession {
   checked: boolean
 }
 
-const defaultAuthState = (): AccessAuthState => ({
-  enabled: true,
-  authenticated: false,
+const defaultAuthState = (enabled: boolean): AccessAuthState => ({
+  enabled,
+  authenticated: !enabled,
   checked: false,
 })
 
@@ -22,7 +22,9 @@ export function normalizeAccessRedirect(path: unknown) {
 }
 
 export function useAccessAuth() {
-  const state = useState<AccessAuthState>('access-auth-state', defaultAuthState)
+  const runtimeConfig = useRuntimeConfig()
+  const fallbackEnabled = Boolean(runtimeConfig.public.accessEnabled)
+  const state = useState<AccessAuthState>('access-auth-state', () => defaultAuthState(fallbackEnabled))
 
   const applySession = (session: AccessSession) => {
     state.value = {
@@ -40,7 +42,7 @@ export function useAccessAuth() {
       applySession(session)
       return session
     } catch {
-      const fallback = { enabled: true, authenticated: false }
+      const fallback = { enabled: fallbackEnabled, authenticated: !fallbackEnabled }
       applySession(fallback)
       return fallback
     }

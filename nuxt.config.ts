@@ -19,6 +19,7 @@ export default defineNuxtConfig({
       s3UploadDir: process.env.S3_UPLOAD_DIR || '',
       maxUploadSizeMb: Number(process.env.MAX_UPLOAD_SIZE_MB || 20),
       maxUploadCount: Number(process.env.MAX_UPLOAD_COUNT || 50),
+      accessEnabled: Boolean(String(process.env.ACCESS_PASSWORD || '').trim()),
     },
   },
   app: {

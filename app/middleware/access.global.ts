@@ -1,4 +1,12 @@
 export default defineNuxtRouteMiddleware(async (to) => {
+  const runtimeConfig = useRuntimeConfig()
+  if (!runtimeConfig.public.accessEnabled) {
+    if (to.path === '/login') {
+      return navigateTo('/')
+    }
+    return
+  }
+
   const { state, refreshSession } = useAccessAuth()
 
   const session = (import.meta.server || !state.value.checked)
