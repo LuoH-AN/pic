@@ -43,6 +43,7 @@ import PhotoSwipeLightbox from 'photoswipe/lightbox'
 import 'photoswipe/style.css'
 import FileManagerContent from '~/components/file/FileManagerContent.vue'
 import FileActionsLayer from '~/components/file/FileActionsLayer.vue'
+import { copyText } from '~/utils/clipboard'
 
 const { show, message, showToast } = useAppToast()
 const {
@@ -60,6 +61,7 @@ const {
 const fileManagerRef = ref<{ getGalleryEl: () => HTMLElement | null } | null>(null)
 const actionLayerRef = ref<{ getMenuEl: () => HTMLElement | null } | null>(null)
 const lightbox = shallowRef<PhotoSwipeLightbox | null>(null)
+let boundGalleryEl: HTMLElement | null = null
 const currentIndex = ref(0)
 const imageLoaded = ref<Record<string, boolean>>({})
 const imageDimensions = ref<Record<string, { width: number; height: number }>>({})
@@ -124,9 +126,16 @@ const openImageContextMenu = async (path: string, x: number, y: number) => {
 }
 
 const initLightbox = () => {
-  if (!import.meta.client || lightbox.value) return
+  if (!import.meta.client) return
   const galleryEl = fileManagerRef.value?.getGalleryEl()
   if (!galleryEl) return
+  // 画廊元素未变化时无需重建（PhotoSwipe 会在打开时重新读取子项）。
+  if (lightbox.value && boundGalleryEl === galleryEl) return
+  // 空目录会卸载 #file-gallery，再有图时是一个新元素，需要销毁旧实例重新绑定。
+  if (lightbox.value) {
+    lightbox.value.destroy()
+    lightbox.value = null
+  }
 
   const instance = new PhotoSwipeLightbox({
     gallery: galleryEl,
@@ -148,6 +157,7 @@ const initLightbox = () => {
 
   instance.init()
   lightbox.value = instance
+  boundGalleryEl = galleryEl
 }
 
 const openPreviewAt = async (index: number) => {
@@ -194,12 +204,8 @@ const handleImageContextMenu = (index: number, event: MouseEvent) => {
 
 const copyImageLink = async (file: FileItem | null) => {
   if (!file) return
-  try {
-    await navigator.clipboard.writeText(getImageUrl(file))
-    showToast('链接已复制')
-  } catch {
-    showToast('复制失败')
-  }
+  const ok = await copyText(getImageUrl(file))
+  showToast(ok ? '链接已复制' : '复制失败')
 }
 
 const copyContextMenuLink = async () => {
@@ -332,6 +338,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', hideImageContextMenu)
   lightbox.value?.destroy()
   lightbox.value = null
+  boundGalleryEl = null
 })
 </script>
 

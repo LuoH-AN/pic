@@ -3,7 +3,7 @@
     <div class="file-list">
       <UploadFilePreviewItem
         v-for="(file, index) in files"
-        :key="file.preview"
+        :key="file.id"
         :file="file"
         @upload="$emit('upload', file)"
         @copy="(url, targetFile) => $emit('copy', url, targetFile)"

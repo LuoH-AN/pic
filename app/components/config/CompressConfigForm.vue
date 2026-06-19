@@ -20,8 +20,8 @@
       @after-leave="handleAfterLeave"
     >
       <div v-if="model.enabled">
-        <div class="form-group">
-          <label class="form-label">压缩质量 (1-100)</label>
+        <div v-if="model.format !== 'png'" class="form-group">
+          <label class="form-label">压缩质量</label>
           <div class="quality-input-group">
             <UInput
               :model-value="qualityInput"
@@ -227,12 +227,5 @@ const handleAfterLeave = () => {
 
 .format-option.active .format-name {
   color: var(--color-primary);
-}
-
-.compress-tip {
-  margin: 16px 0 0;
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--color-text-muted);
 }
 </style>

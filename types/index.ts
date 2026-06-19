@@ -38,6 +38,7 @@ export interface FileItem {
 
 // 预览文件（上传前）
 export interface PreviewFile {
+  id: number
   file: File
   preview: string
   name: string

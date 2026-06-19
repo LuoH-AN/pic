@@ -1,89 +1,6 @@
-import type { Options as ImageCompressionOptions } from 'browser-image-compression'
-import type { CompressConfig, PreviewFile } from '~~/types'
-
-type ImageCompressionFn = (file: File, options: ImageCompressionOptions) => Promise<File | Blob>
-
-let imageCompressionLoader: Promise<ImageCompressionFn> | null = null
-
-const toMb = (bytes: number) => bytes / (1024 * 1024)
-const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value))
-
-const getImageCompression = async (): Promise<ImageCompressionFn> => {
-  if (!import.meta.client) {
-    throw new Error('browser-image-compression 仅可在客户端执行')
-  }
-
-  if (!imageCompressionLoader) {
-    imageCompressionLoader = import('browser-image-compression')
-      .then(mod => mod.default as ImageCompressionFn)
-  }
-
-  return imageCompressionLoader
-}
-
-const getMimeByFormat = (format: CompressConfig['format']) => {
-  if (format === 'jpg') return 'image/jpeg'
-  if (format === 'png') return 'image/png'
-  if (format === 'webp') return 'image/webp'
-  return 'image/avif'
-}
-
-const getExtensionByFormat = (format: CompressConfig['format']) => {
-  return format === 'jpg' ? 'jpg' : format
-}
-
-const resolveUploadCompressionOptions = (file: File, config: CompressConfig): ImageCompressionOptions => {
-  const sizeMb = toMb(file.size)
-  const quality = clamp(config.quality / 100, 0.42, 0.95)
-
-  const isHuge = sizeMb >= 12
-  const isLarge = sizeMb >= 6
-
-  return {
-    maxSizeMB: isHuge ? 3.5 : isLarge ? 5 : 6,
-    maxWidthOrHeight: isHuge ? 2560 : isLarge ? 3072 : 3840,
-    useWebWorker: true,
-    fileType: getMimeByFormat(config.format),
-    initialQuality: quality,
-    preserveExif: false,
-  }
-}
-
-const compressPreviewImage = async (file: File): Promise<string> => {
-  try {
-    const imageCompression = await getImageCompression()
-    const previewBlob = await imageCompression(file, {
-      maxSizeMB: 0.28,
-      maxWidthOrHeight: 1280,
-      useWebWorker: true,
-      fileType: 'image/webp',
-      initialQuality: 0.72,
-      preserveExif: false,
-    })
-
-    return URL.createObjectURL(previewBlob)
-  } catch (error) {
-    console.warn('生成预览缩略图失败:', error)
-    return ''
-  }
-}
-
-const compressUploadImage = async (file: File, config: CompressConfig): Promise<File> => {
-  const imageCompression = await getImageCompression()
-  const compressedBlob = await imageCompression(file, resolveUploadCompressionOptions(file, config))
-
-  const extension = getExtensionByFormat(config.format)
-  const nextName = `${file.name.replace(/\.[^/.]+$/, '')}.${extension}`
-
-  return new File(
-    [compressedBlob],
-    nextName,
-    {
-      type: getMimeByFormat(config.format),
-      lastModified: Date.now(),
-    },
-  )
-}
+import type { PreviewFile } from '~~/types'
+import { compressImageForUpload, makePreviewObjectUrl } from '~/utils/imageCompressor'
+import { copyText } from '~/utils/clipboard'
 
 export function useUpload() {
   const runtimeConfig = useRuntimeConfig()
@@ -94,6 +11,9 @@ export function useUpload() {
   const maxUploadSizeMb = Math.max(1, Number(runtimeConfig.public.maxUploadSizeMb || 20))
   const maxUploadCount = Math.max(1, Number(runtimeConfig.public.maxUploadCount || 50))
   const maxUploadBytes = maxUploadSizeMb * 1024 * 1024
+
+  let nextPreviewId = 0
+  const fileSignature = (file: File) => `${file.name}::${file.size}::${file.lastModified}`
 
   const addFiles = async (files: File[]) => {
     const incomingImages = files.filter(file => file.type.startsWith('image/'))
@@ -106,9 +26,22 @@ export function useUpload() {
       return valid
     })
 
+    // 去重：跳过队列中已存在的相同文件（同名 + 同大小 + 同修改时间）。
+    const existingSignatures = new Set(previewFiles.value.map(item => fileSignature(item.file)))
+    let ignoredByDuplicate = 0
+    const deduped = validBySize.filter((file) => {
+      const signature = fileSignature(file)
+      if (existingSignatures.has(signature)) {
+        ignoredByDuplicate += 1
+        return false
+      }
+      existingSignatures.add(signature)
+      return true
+    })
+
     const remainingSlots = Math.max(0, maxUploadCount - previewFiles.value.length)
-    const accepted = validBySize.slice(0, remainingSlots)
-    const ignoredByCount = validBySize.length - accepted.length
+    const accepted = deduped.slice(0, remainingSlots)
+    const ignoredByCount = deduped.length - accepted.length
 
     let previewFailed = 0
     if (accepted.length > 0) {
@@ -118,10 +51,11 @@ export function useUpload() {
     try {
       for (const [index, file] of accepted.entries()) {
         showLoadingToast(`正在处理图片预览（${index + 1}/${accepted.length}）`)
-        const preview = await compressPreviewImage(file)
+        const preview = await makePreviewObjectUrl(file)
         if (!preview) previewFailed += 1
 
         previewFiles.value.push({
+          id: ++nextPreviewId,
           file,
           preview,
           name: file.name,
@@ -138,6 +72,9 @@ export function useUpload() {
     }
     if (ignoredBySize > 0) {
       tips.push(`忽略超大文件 ${ignoredBySize} 个（>${maxUploadSizeMb}MB）`)
+    }
+    if (ignoredByDuplicate > 0) {
+      tips.push(`忽略重复文件 ${ignoredByDuplicate} 个`)
     }
     if (ignoredByCount > 0) {
       tips.push(`最多保留 ${maxUploadCount} 个待上传文件`)
@@ -175,21 +112,17 @@ export function useUpload() {
       let compressedByClient = false
 
       if (clientConfig.compress.enabled) {
-        let compressionErrorCaught = false
         showLoadingToast(`正在压缩图片：${previewFile.name}`)
         try {
-          uploadFile = await compressUploadImage(previewFile.file, clientConfig.compress)
+          uploadFile = await compressImageForUpload(previewFile.file, clientConfig.compress)
           compressedByClient = true
         } catch (compressionError) {
-          console.error('客户端压缩失败:', compressionError)
-          compressionErrorCaught = true
+          // 压缩失败时不再中断上传，改为上传原图，避免丢失这次上传。
+          console.error('客户端压缩失败，改为上传原图:', compressionError)
+          uploadFile = previewFile.file
+          compressedByClient = false
         } finally {
           hideToast()
-        }
-
-        if (compressionErrorCaught) {
-          showToast('压缩失败，未上传')
-          return
         }
       }
 
@@ -204,6 +137,7 @@ export function useUpload() {
         body: {
           filename: uploadFile.name,
           contentType: uploadFile.type || 'application/octet-stream',
+          size: uploadFile.size,
           rename: clientConfig.rename,
         },
       })
@@ -267,14 +201,14 @@ export function useUpload() {
 
   const copyUrl = async (url?: string, previewFile?: PreviewFile) => {
     if (!url) return
-    try {
-      await navigator.clipboard.writeText(url)
+    const ok = await copyText(url)
+    if (ok) {
       const targetFile = previewFile ?? previewFiles.value.find(file => file.url === url)
       if (targetFile) {
         targetFile.copied = true
       }
       showToast('已复制到剪贴板')
-    } catch {
+    } else {
       showToast('复制失败')
     }
   }

@@ -6,6 +6,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
     accessPassword: process.env.ACCESS_PASSWORD || '',
+    authSecret: process.env.AUTH_SECRET || '',
     s3Endpoint: process.env.S3_ENDPOINT || '',
     s3Region: process.env.S3_REGION || 'auto',
     s3Bucket: process.env.S3_BUCKET || '',
@@ -27,5 +28,20 @@ export default defineNuxtConfig({
       name: 'page-fade',
       mode: 'out-in',
     },
+    head: {
+      // 在首帧绘制前同步应用主题，避免刷新闪烁(FOUC)，且与路由无关
+      // （主题切换按钮只在首页显示，但主题偏好需在所有页面生效）。
+      script: [
+        {
+          innerHTML: `(function(){try{var m=localStorage.getItem('pic-theme-mode');if(m!=='light'&&m!=='dark'&&m!=='system'){m='system';}var t=m;if(m==='system'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}var d=document.documentElement;d.dataset.theme=t;d.style.colorScheme=t;}catch(e){}})();`,
+          tagPosition: 'head',
+        },
+      ],
+    },
+  },
+  vite: {
+    // AVIF 编码器以 ES module Worker 形式运行；排除预打包以正确加载其 WASM 资源。
+    worker: { format: 'es' },
+    optimizeDeps: { exclude: ['@jsquash/avif'] },
   },
 })

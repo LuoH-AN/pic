@@ -3,7 +3,6 @@
     <div class="login-card">
       <div class="login-header">
         <h1>访问验证</h1>
-        <p>请输入访问密码后继续使用图片上传与管理功能。</p>
       </div>
 
       <form class="login-form" @submit.prevent="submitLogin">
@@ -112,13 +111,6 @@ onMounted(async () => {
   margin: 0;
   font-size: 24px;
   color: var(--color-text-primary);
-}
-
-.login-header p {
-  margin: 10px 0 0;
-  color: var(--color-text-muted);
-  font-size: 14px;
-  line-height: 1.6;
 }
 
 .login-form {

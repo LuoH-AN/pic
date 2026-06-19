@@ -1,7 +1,7 @@
 <template>
   <UiModal
     :model-value="modelValue"
-    title="重命名图片"
+    title="重命名"
     :show-close="false"
     content-class="rename-modal-content"
     header-class="rename-modal-header"
@@ -10,7 +10,6 @@
     @update:model-value="emit('update:modelValue', $event)"
   >
     <div class="rename-body">
-      <label class="rename-label">新文件名</label>
       <UInput
         :model-value="nameValue"
         placeholder="输入新的文件名"
@@ -55,12 +54,6 @@ const emit = defineEmits<{
   display: flex;
   flex-direction: column;
   gap: 4px;
-}
-
-.rename-label {
-  margin: 0;
-  font-size: 13px;
-  color: var(--color-text-secondary);
 }
 
 .rename-input {

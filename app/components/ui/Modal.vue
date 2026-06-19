@@ -61,12 +61,24 @@ const handleEsc = (event: KeyboardEvent) => {
   }
 }
 
+// 打开时锁定 body 滚动，关闭/卸载时恢复，避免背景跟随滚动。
+const lockBodyScroll = (locked: boolean) => {
+  if (!import.meta.client) return
+  document.body.style.overflow = locked ? 'hidden' : ''
+}
+
+watch(() => props.modelValue, (visible) => {
+  lockBodyScroll(visible)
+})
+
 onMounted(() => {
   document.addEventListener('keydown', handleEsc)
+  if (props.modelValue) lockBodyScroll(true)
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', handleEsc)
+  lockBodyScroll(false)
 })
 </script>
 
