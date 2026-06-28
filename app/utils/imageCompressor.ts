@@ -25,25 +25,31 @@ const clamp = (value: number, min: number, max: number) => Math.max(min, Math.mi
 
 const replaceExtension = (name: string, ext: string) => `${name.replace(/\.[^/.]+$/, '')}.${ext}`
 
-const resolveMaxDimension = (file: File) => {
-  const sizeMb = file.size / (1024 * 1024)
-  if (sizeMb >= 12) return 2560
-  if (sizeMb >= 6) return 3072
-  return 3840
+// 按实际分辨率决定压缩/编码时的最长边上限。按分辨率（而非 file.size）判断更准——
+// 压缩过的 jpg 可能体积小但分辨率高。压缩图 2048 边长足够（屏幕/打印都够用），
+// 且像素量从 ~12MP 降到 ~4MP，AVIF 软编码快数倍。
+const resolveMaxDimension = (width: number, height: number) => {
+  const longest = Math.max(width, height)
+  if (longest >= 6000) return 2880
+  if (longest >= 4000) return 2560
+  if (longest >= 3000) return 2304
+  return 2048
 }
 
 // 解码并按需缩放，返回承载像素的 canvas。
 // createImageBitmap 对某些图片会解码失败（HEIC 套 .jpg 后缀、CMYK / 带 ICC 的特殊
 // JPEG、损坏图等）。先试 createImageBitmap（最快），失败再用 <img>.decode() 兜底
 // （浏览器 <img> 解码器更宽容，能解部分 createImageBitmap 解不了的图）。
+// maxDimension: 0 = 按解码后分辨率自动决定（用于压缩）；正数 = 固定上限（用于缩略图）。
 const drawToCanvas = async (source: Blob, maxDimension: number): Promise<HTMLCanvasElement> => {
   const natural = await decodeToNaturalSize(source)
   try {
     let width = natural.width
     let height = natural.height
     const longest = Math.max(width, height)
-    if (maxDimension > 0 && longest > maxDimension) {
-      const scale = maxDimension / longest
+    const limit = maxDimension > 0 ? maxDimension : resolveMaxDimension(width, height)
+    if (limit > 0 && longest > limit) {
+      const scale = limit / longest
       width = Math.max(1, Math.round(width * scale))
       height = Math.max(1, Math.round(height * scale))
     }
@@ -144,9 +150,10 @@ const encodeAvif = async (canvas: HTMLCanvasElement, quality: number): Promise<B
 
   const buffer = await new Promise<ArrayBuffer>((resolve, reject) => {
     avifPending.set(id, { resolve, reject })
-    // 传 buffer 的副本并 transfer，避免主线程的 imageData 被 detach。
-    const copy = imageData.data.buffer.slice(0)
-    worker.postMessage({ id, data: copy, width: canvas.width, height: canvas.height, quality }, [copy])
+    // 直接 transfer imageData 的 buffer（getImageData 返回的是全新数组，主线程用完即弃，
+    // 无需 slice 副本）。大图省掉几十 MB 的整份 copy。
+    const data = imageData.data.buffer
+    worker.postMessage({ id, data, width: canvas.width, height: canvas.height, quality }, [data])
   })
 
   return new Blob([buffer], { type: 'image/avif' })
@@ -155,7 +162,7 @@ const encodeAvif = async (canvas: HTMLCanvasElement, quality: number): Promise<B
 // 压缩用于上传的图片，返回携带正确类型/后缀的 File。
 export const compressImageForUpload = async (file: File, config: CompressConfig): Promise<File> => {
   const quality = clamp(Math.round(config.quality), 1, 100)
-  const canvas = await drawToCanvas(file, resolveMaxDimension(file))
+  const canvas = await drawToCanvas(file, 0)
   const format = config.format
 
   if (format === 'avif') {

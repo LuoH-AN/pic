@@ -17,7 +17,8 @@ ctx.onmessage = async (event: MessageEvent<EncodeRequest>) => {
   try {
     const imageData = { data: new Uint8ClampedArray(data), width, height }
     // jSquash 的 quality 取值 0-100（越大越好），speed 取值 0-10（越大越快、体积略增）。
-    const buffer = await encode(imageData as ImageData, { quality, speed: 6 })
+    // speed=9：编码速度数倍提升，体积略增；在低质量档下视觉差异极小，适合上传压缩场景。
+    const buffer = await encode(imageData as ImageData, { quality, speed: 9 })
     ctx.postMessage({ id, ok: true, buffer }, [buffer])
   } catch (error) {
     ctx.postMessage({
