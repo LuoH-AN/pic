@@ -6,7 +6,7 @@ import type { CompressConfig, RenameConfig, S3Config } from '~~/types'
 const INVALID_FILENAME_CHARS = /[\\/\u0000-\u001F\u007F<>:"|?*]/
 const INVALID_PATH_SEGMENT_CHARS = /[\\\u0000-\u001F\u007F<>:"|?*]/
 const VALID_RENAME_STRATEGIES = new Set<RenameConfig['strategy']>(['timestamp', 'random', 'custom'])
-const VALID_COMPRESS_FORMATS = new Set<CompressConfig['format']>(['jpg', 'png', 'webp', 'avif'])
+const VALID_COMPRESS_FORMATS = new Set<CompressConfig['format']>(['jpg', 'png', 'webp'])
 
 export function normalizeRelativePath(value: unknown, fieldName = 'path'): string {
   const raw = typeof value === 'string' ? value.trim() : ''

@@ -42,9 +42,5 @@ export default defineNuxtConfig({
   },
   vite: {
     plugins: [tailwindcss()],
-    // AVIF encoder runs as an ES module Worker; exclude it from pre-bundling so its
-    // WASM assets load correctly.
-    worker: { format: 'es' },
-    optimizeDeps: { exclude: ['@jsquash/avif'] },
   },
 })

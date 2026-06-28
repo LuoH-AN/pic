@@ -18,7 +18,7 @@ export interface RenameConfig {
 export interface CompressConfig {
   enabled: boolean
   quality: number
-  format: 'jpg' | 'png' | 'webp' | 'avif'
+  format: 'jpg' | 'png' | 'webp'
 }
 
 // 客户端可配置项（不包含敏感信息）

@@ -70,7 +70,7 @@
 import type { CompressConfig } from '~~/types'
 
 const model = defineModel<CompressConfig>({ required: true })
-const formats = ['jpg', 'png', 'webp', 'avif'] as const
+const formats = ['jpg', 'png', 'webp'] as const
 const isPanelLeaving = ref(false)
 const qualityInput = ref('')
 const isEditingQuality = ref(false)

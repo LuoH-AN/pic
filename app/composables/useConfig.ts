@@ -2,7 +2,7 @@ import type { ClientConfig, CompressConfig } from '~~/types'
 
 const STORAGE_KEY = 'pic-app-config'
 
-const COMPRESS_FORMATS: CompressConfig['format'][] = ['jpg', 'png', 'webp', 'avif']
+const COMPRESS_FORMATS: CompressConfig['format'][] = ['jpg', 'png', 'webp']
 
 const defaultConfig: ClientConfig = {
   rename: {
@@ -11,8 +11,8 @@ const defaultConfig: ClientConfig = {
   },
   compress: {
     enabled: false,
-    quality: 85,
-    format: 'jpg',
+    quality: 80,
+    format: 'webp',
   },
 }
 

@@ -1,9 +1,8 @@
 import type { CompressConfig } from '~~/types'
 
-// 客户端图片压缩。
-// - jpg / png / webp：浏览器原生 canvas.toBlob 即可真实编码（现代浏览器均支持 webp 编码）。
-// - avif：浏览器无法用 canvas 编码，改用 jSquash(WASM) 在 Web Worker 内真实编码。
-// 解码 + 缩放在主线程用 createImageBitmap + canvas 完成（很快），重活（AVIF 编码）才丢给 Worker。
+// 客户端图片压缩。jpg / png / webp 均用浏览器原生 canvas.toBlob 真实编码
+// （现代浏览器都支持 webp 编码，速度快、零 WASM 依赖）。
+// 解码 + 缩放在主线程用 createImageBitmap + canvas 完成。
 
 type TargetFormat = CompressConfig['format']
 
@@ -11,14 +10,12 @@ const MIME: Record<TargetFormat, string> = {
   jpg: 'image/jpeg',
   png: 'image/png',
   webp: 'image/webp',
-  avif: 'image/avif',
 }
 
 const EXTENSION: Record<TargetFormat, string> = {
   jpg: 'jpg',
   png: 'png',
   webp: 'webp',
-  avif: 'avif',
 }
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value))
@@ -27,7 +24,7 @@ const replaceExtension = (name: string, ext: string) => `${name.replace(/\.[^/.]
 
 // 按实际分辨率决定压缩/编码时的最长边上限。按分辨率（而非 file.size）判断更准——
 // 压缩过的 jpg 可能体积小但分辨率高。压缩图 2048 边长足够（屏幕/打印都够用），
-// 且像素量从 ~12MP 降到 ~4MP，AVIF 软编码快数倍。
+// 像素量从 ~12MP 降到 ~4MP，编码更快。
 const resolveMaxDimension = (width: number, height: number) => {
   const longest = Math.max(width, height)
   if (longest >= 6000) return 2880
@@ -113,75 +110,11 @@ const canvasToBlob = (canvas: HTMLCanvasElement, type: string, quality?: number)
   })
 }
 
-// ---- AVIF Worker（单例，懒加载）----
-let avifWorker: Worker | null = null
-let avifSeq = 0
-const avifPending = new Map<number, { resolve: (buffer: ArrayBuffer) => void; reject: (error: Error) => void }>()
-
-const getAvifWorker = (): Worker => {
-  if (avifWorker) return avifWorker
-
-  const worker = new Worker(new URL('../workers/avifEncoder.ts', import.meta.url), { type: 'module' })
-  worker.onmessage = (event: MessageEvent) => {
-    const { id, ok, buffer, error } = event.data || {}
-    const pending = avifPending.get(id)
-    if (!pending) return
-    avifPending.delete(id)
-    if (ok) pending.resolve(buffer)
-    else pending.reject(new Error(error || 'AVIF 编码失败'))
-  }
-  worker.onerror = () => {
-    for (const pending of avifPending.values()) {
-      pending.reject(new Error('AVIF 编码 Worker 异常'))
-    }
-    avifPending.clear()
-  }
-
-  avifWorker = worker
-  return worker
-}
-
-const encodeAvif = async (canvas: HTMLCanvasElement, quality: number): Promise<Blob> => {
-  const ctx = canvas.getContext('2d')
-  if (!ctx) throw new Error('无法获取 canvas 2d 上下文')
-  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-  const worker = getAvifWorker()
-  const id = ++avifSeq
-
-  const buffer = await new Promise<ArrayBuffer>((resolve, reject) => {
-    avifPending.set(id, { resolve, reject })
-    // 直接 transfer imageData 的 buffer（getImageData 返回的是全新数组，主线程用完即弃，
-    // 无需 slice 副本）。大图省掉几十 MB 的整份 copy。
-    const data = imageData.data.buffer
-    worker.postMessage({ id, data, width: canvas.width, height: canvas.height, quality }, [data])
-  })
-
-  return new Blob([buffer], { type: 'image/avif' })
-}
-
 // 压缩用于上传的图片，返回携带正确类型/后缀的 File。
 export const compressImageForUpload = async (file: File, config: CompressConfig): Promise<File> => {
   const quality = clamp(Math.round(config.quality), 1, 100)
   const canvas = await drawToCanvas(file, 0)
   const format = config.format
-
-  if (format === 'avif') {
-    try {
-      const blob = await encodeAvif(canvas, quality)
-      return new File([blob], replaceExtension(file.name, EXTENSION.avif), {
-        type: MIME.avif,
-        lastModified: file.lastModified,
-      })
-    } catch (error) {
-      // AVIF 编码失败（少数环境不支持 WASM/Worker）时，降级为真实 WebP，保证上传不中断。
-      console.warn('AVIF 编码失败，降级为 WebP:', error)
-      const webpBlob = await canvasToBlob(canvas, MIME.webp, quality / 100)
-      return new File([webpBlob], replaceExtension(file.name, EXTENSION.webp), {
-        type: MIME.webp,
-        lastModified: file.lastModified,
-      })
-    }
-  }
 
   // png 为无损，quality 不生效；jpg/webp 使用质量参数。
   const blob = format === 'png'
@@ -194,7 +127,7 @@ export const compressImageForUpload = async (file: File, config: CompressConfig)
   })
 }
 
-// 生成上传列表用的小缩略图（原生 WebP，快速、无需 WASM）。失败返回空串。
+// 生成上传列表用的小缩略图（原生 WebP，快速）。失败返回空串。
 export const makePreviewObjectUrl = async (file: File): Promise<string> => {
   try {
     const canvas = await drawToCanvas(file, 1280)
