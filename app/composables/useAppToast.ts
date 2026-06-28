@@ -1,45 +1,52 @@
-// 全局单例 Toast。
-// 计时器句柄用模块级变量保存，而不是放进 useState：useState 是 SSR 可序列化的共享状态，
-// 不适合存放 setTimeout 句柄这类不可序列化对象。
-let toastTimer: ReturnType<typeof setTimeout> | null = null
+// Global toast store powering the reka-ui based <Toaster />.
+//
+// Toasts live in a useState list (SSR-serializable). Each record carries its
+// own duration; the <ToastRoot> auto-dismisses and emits update:open=false,
+// which the Toaster uses to remove the record (after the exit animation).
+// IDs are a module-level counter — fine because toasts are only ever created
+// from client-side interactions, never during SSR, so there is no hydration
+// mismatch.
+
+interface AppToast {
+  id: number
+  message: string
+  duration: number
+}
+
+let seq = 0
+
+const INFINITE = Number.POSITIVE_INFINITY
 
 export function useAppToast() {
-  const show = useState<boolean>('app-toast-show', () => false)
-  const message = useState<string>('app-toast-message', () => '')
+  const toasts = useState<AppToast[]>('app-toasts', () => [])
 
-  const clearToastTimer = () => {
-    if (toastTimer) {
-      clearTimeout(toastTimer)
-      toastTimer = null
-    }
+  const dismiss = (id: number) => {
+    toasts.value = toasts.value.filter(item => item.id !== id)
+  }
+
+  const push = (message: string, duration: number) => {
+    const id = (seq += 1)
+    toasts.value = [...toasts.value, { id, message, duration }]
+    return id
+  }
+
+  const showToast = (message: string, duration = 2000) => {
+    push(message, duration)
+  }
+
+  const showLoadingToast = (message: string) => {
+    push(message, INFINITE)
   }
 
   const hideToast = () => {
-    clearToastTimer()
-    show.value = false
-  }
-
-  const showToast = (msg: string, duration = 2000) => {
-    clearToastTimer()
-    message.value = msg
-    show.value = true
-    toastTimer = setTimeout(() => {
-      show.value = false
-      toastTimer = null
-    }, duration)
-  }
-
-  const showLoadingToast = (msg: string) => {
-    clearToastTimer()
-    message.value = msg
-    show.value = true
+    toasts.value = []
   }
 
   return {
-    show,
-    message,
+    toasts,
     showToast,
     showLoadingToast,
     hideToast,
+    dismiss,
   }
 }

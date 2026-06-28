@@ -1,8 +1,9 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import tailwindcss from '@tailwindcss/vite'
+
 export default defineNuxtConfig({
   compatibilityDate: '2026-02-05',
   devtools: { enabled: process.env.NODE_ENV === 'development' },
-  modules: ['@nuxt/ui'],
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
     accessPassword: process.env.ACCESS_PASSWORD || '',
@@ -29,18 +30,20 @@ export default defineNuxtConfig({
       mode: 'out-in',
     },
     head: {
-      // 在首帧绘制前同步应用主题，避免刷新闪烁(FOUC)，且与路由无关
-      // （主题切换按钮只在首页显示，但主题偏好需在所有页面生效）。
+      // Apply the resolved theme before first paint to avoid a flash (FOUC).
+      // Toggles the `.dark` class on <html> — route-independent.
       script: [
         {
-          innerHTML: `(function(){try{var m=localStorage.getItem('pic-theme-mode');if(m!=='light'&&m!=='dark'&&m!=='system'){m='system';}var t=m;if(m==='system'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}var d=document.documentElement;d.dataset.theme=t;d.style.colorScheme=t;}catch(e){}})();`,
+          innerHTML: `(function(){try{var m=localStorage.getItem('pic-theme-mode');if(m!=='light'&&m!=='dark'&&m!=='system'){m='system';}var t=m;if(m==='system'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}var d=document.documentElement;d.classList.toggle('dark',t==='dark');d.style.colorScheme=t;}catch(e){}})();`,
           tagPosition: 'head',
         },
       ],
     },
   },
   vite: {
-    // AVIF 编码器以 ES module Worker 形式运行；排除预打包以正确加载其 WASM 资源。
+    plugins: [tailwindcss()],
+    // AVIF encoder runs as an ES module Worker; exclude it from pre-bundling so its
+    // WASM assets load correctly.
     worker: { format: 'es' },
     optimizeDeps: { exclude: ['@jsquash/avif'] },
   },

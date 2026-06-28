@@ -1,5 +1,5 @@
 <template>
-  <div class="file-manager">
+  <div class="mx-auto flex w-full min-[1400px]:w-[1400px] flex-col gap-4">
     <FilePathBar
       :current-path="currentPath"
       :folders="folders"
@@ -14,7 +14,7 @@
       :image-dimensions="imageDimensions"
       :get-image-url="getImageUrl"
       @image-click="handleImageClick"
-      @image-context="handleImageContext"
+      @image-action="handleImageAction"
       @image-load="handleImageLoad"
     />
   </div>
@@ -39,7 +39,7 @@ defineProps<Props>()
 const emit = defineEmits<{
   navigate: [path: string]
   'image-click': [index: number]
-  'image-context': [index: number, event: MouseEvent]
+  'image-action': [payload: { type: 'copy' | 'rename' | 'delete'; index: number }]
   'image-load': [path: string, event: Event]
 }>()
 
@@ -53,8 +53,8 @@ const handleImageClick = (index: number) => {
   emit('image-click', index)
 }
 
-const handleImageContext = (index: number, event: MouseEvent) => {
-  emit('image-context', index, event)
+const handleImageAction = (payload: { type: 'copy' | 'rename' | 'delete'; index: number }) => {
+  emit('image-action', payload)
 }
 
 const handleImageLoad = (path: string, event: Event) => {
@@ -65,13 +65,3 @@ defineExpose({
   getGalleryEl: () => imageWallRef.value?.getGalleryEl() || null,
 })
 </script>
-
-<style scoped>
-.file-manager {
-  width: min(1400px, 100%);
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-</style>

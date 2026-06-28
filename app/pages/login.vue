@@ -1,33 +1,55 @@
 <template>
-  <div class="login-page">
-    <div class="login-card">
-      <div class="login-header">
-        <h1>访问验证</h1>
+  <div class="flex min-h-screen items-center justify-center px-6 py-10">
+    <div class="relative flex w-full max-w-[440px] flex-col gap-6 rounded-xl border bg-card p-7 pt-9 shadow-[0_18px_50px_var(--ring)] max-md:rounded-lg max-md:px-5 max-md:pt-7">
+      <div class="flex flex-col items-center gap-2.5 text-center">
+        <div
+          class="mb-0.5 flex size-[60px] items-center justify-center rounded-2xl text-white shadow-[0_12px_30px_var(--ring)]"
+          style="background: var(--primary-gradient)"
+        >
+          <Lock class="size-7" />
+        </div>
+        <h1 class="m-0 text-2xl font-bold tracking-tight text-foreground max-md:text-[21px]">
+          访问验证
+        </h1>
+        <p class="m-0 text-[13.5px] text-muted-foreground">
+          请输入访问密码以继续
+        </p>
       </div>
 
-      <form class="login-form" @submit.prevent="submitLogin">
-        <label for="access-password" class="form-label">访问密码</label>
-        <input
+      <form class="flex flex-col gap-3" @submit.prevent="submitLogin">
+        <UiLabel for="access-password">访问密码</UiLabel>
+        <UiInput
           id="access-password"
           v-model="password"
-          class="password-input"
           type="password"
           placeholder="请输入访问密码"
           autocomplete="current-password"
           :disabled="loading"
+          class="h-[46px]"
+        />
+
+        <p v-if="errorMessage" class="m-0 mt-0.5 text-[13px] text-destructive">
+          {{ errorMessage }}
+        </p>
+
+        <UiButton
+          type="submit"
+          variant="gradient"
+          size="lg"
+          :disabled="loading"
+          class="mt-1.5 h-[46px] w-full"
         >
-
-        <p v-if="errorMessage" class="error-tip">{{ errorMessage }}</p>
-
-        <button type="submit" class="submit-btn" :disabled="loading">
-          {{ loading ? '验证中...' : '进入系统' }}
-        </button>
+          <Loader2 v-if="loading" class="size-[17px] animate-spin" />
+          <span>{{ loading ? '验证中...' : '进入系统' }}</span>
+        </UiButton>
       </form>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { Lock, Loader2 } from 'lucide-vue-next'
+
 definePageMeta({
   layout: 'auth',
 })
@@ -83,118 +105,3 @@ onMounted(async () => {
   }
 })
 </script>
-
-<style scoped>
-.login-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-10) var(--space-6);
-  background: var(--color-page-bg);
-}
-
-.login-card {
-  width: 100%;
-  max-width: 460px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 14px;
-  box-shadow: var(--shadow-soft);
-  padding: 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.login-header h1 {
-  margin: 0;
-  font-size: 24px;
-  color: var(--color-text-primary);
-}
-
-.login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.form-label {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-text-secondary);
-}
-
-.password-input {
-  width: 100%;
-  min-height: 44px;
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  background: var(--color-surface);
-  color: var(--color-text-primary);
-  padding: 0 12px;
-  font-size: 14px;
-  box-sizing: border-box;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.password-input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--color-primary-ring);
-}
-
-.password-input::placeholder {
-  color: var(--color-text-muted);
-}
-
-.password-input:disabled {
-  background: var(--color-surface-alt);
-  cursor: not-allowed;
-}
-
-.submit-btn {
-  margin-top: 4px;
-  width: 100%;
-  min-height: 44px;
-  border: 1px solid var(--color-primary);
-  border-radius: 12px;
-  background: var(--color-primary);
-  color: var(--color-toast-text);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
-}
-
-.submit-btn:hover:not(:disabled) {
-  background: var(--color-primary-strong);
-  border-color: var(--color-primary-strong);
-}
-
-.submit-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.error-tip {
-  margin: 2px 0 0;
-  color: var(--color-danger);
-  font-size: 13px;
-}
-
-@media (max-width: 768px) {
-  .login-page {
-    padding: var(--space-6) var(--space-4);
-  }
-
-  .login-card {
-    padding: 20px;
-    border-radius: 12px;
-  }
-
-  .login-header h1 {
-    font-size: 21px;
-  }
-}
-</style>

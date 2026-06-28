@@ -1,14 +1,4 @@
 <template>
-  <ImageContextMenu
-    ref="imageMenuRef"
-    :model-value="showImageContextMenu"
-    :position="imageContextMenuPosition"
-    @update:model-value="emit('update:showImageContextMenu', $event)"
-    @copy="emit('copy')"
-    @rename="emit('rename')"
-    @delete="emit('delete')"
-  />
-
   <DeleteConfirmModal
     :model-value="showDeleteConfirmModal"
     :file-name="actionTargetFile?.name || ''"
@@ -30,13 +20,10 @@
 
 <script setup lang="ts">
 import type { FileItem } from '~~/types'
-import ImageContextMenu from '~/components/file/ImageContextMenu.vue'
 import DeleteConfirmModal from '~/components/file/DeleteConfirmModal.vue'
 import RenameModal from '~/components/file/RenameModal.vue'
 
 interface Props {
-  showImageContextMenu: boolean
-  imageContextMenuPosition: { x: number; y: number }
   showDeleteConfirmModal: boolean
   showRenameModalState: boolean
   renameValue: string
@@ -47,21 +34,11 @@ interface Props {
 
 defineProps<Props>()
 const emit = defineEmits<{
-  'update:showImageContextMenu': [value: boolean]
   'update:showDeleteConfirmModal': [value: boolean]
   'update:showRenameModalState': [value: boolean]
   'update:renameValue': [value: string]
-  copy: []
-  rename: []
-  delete: []
   'confirm-delete': []
   'confirm-rename': []
   'cancel-rename': []
 }>()
-
-const imageMenuRef = ref<{ getMenuEl: () => HTMLElement | null } | null>(null)
-
-defineExpose({
-  getMenuEl: () => imageMenuRef.value?.getMenuEl() || null,
-})
 </script>

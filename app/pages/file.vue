@@ -1,5 +1,5 @@
 <template>
-  <div class="page-container">
+  <div class="min-h-screen px-6 pb-[calc(1.5rem+var(--bottom-nav-offset,96px))] pt-6 max-md:px-4 max-md:pt-4">
     <FileManagerContent
       ref="fileManagerRef"
       :current-path="currentPath"
@@ -11,29 +11,21 @@
       :get-image-url="getImageUrl"
       @navigate="handleNavigate"
       @image-click="handleImageClick"
-      @image-context="handleImageContextMenu"
+      @image-action="handleImageAction"
       @image-load="handleImageLoaded"
     />
 
     <FileActionsLayer
-      ref="actionLayerRef"
-      v-model:show-image-context-menu="showImageContextMenu"
       v-model:show-delete-confirm-modal="showDeleteConfirmModal"
       v-model:show-rename-modal-state="showRenameModalState"
       v-model:rename-value="renameValue"
-      :image-context-menu-position="imageContextMenuPosition"
       :action-target-file="actionTargetFile"
       :deleting="deleting"
       :renaming="renaming"
-      @copy="copyContextMenuLink"
-      @rename="openRenameModal(contextMenuTargetFile)"
-      @delete="openDeleteConfirm(contextMenuTargetFile)"
       @confirm-delete="confirmDelete"
       @confirm-rename="confirmRename"
       @cancel-rename="closeRenameModal"
     />
-
-    <Toast v-model="show" :message="message" />
   </div>
 </template>
 
@@ -45,7 +37,7 @@ import FileManagerContent from '~/components/file/FileManagerContent.vue'
 import FileActionsLayer from '~/components/file/FileActionsLayer.vue'
 import { copyText } from '~/utils/clipboard'
 
-const { show, message, showToast } = useAppToast()
+const { showToast } = useAppToast()
 const {
   currentPath,
   folders,
@@ -59,15 +51,11 @@ const {
 } = useS3Files()
 
 const fileManagerRef = ref<{ getGalleryEl: () => HTMLElement | null } | null>(null)
-const actionLayerRef = ref<{ getMenuEl: () => HTMLElement | null } | null>(null)
 const lightbox = shallowRef<PhotoSwipeLightbox | null>(null)
 let boundGalleryEl: HTMLElement | null = null
 const currentIndex = ref(0)
 const imageLoaded = ref<Record<string, boolean>>({})
 const imageDimensions = ref<Record<string, { width: number; height: number }>>({})
-const imageContextMenuPosition = ref({ x: 0, y: 0 })
-const showImageContextMenu = ref(false)
-const contextMenuTargetPath = ref('')
 
 const showDeleteConfirmModal = ref(false)
 const deleting = ref(false)
@@ -77,52 +65,25 @@ const renameValue = ref('')
 const actionTargetFile = ref<FileItem | null>(null)
 
 const currentPreviewFile = computed(() => imageFiles.value[currentIndex.value] || null)
-const contextMenuTargetFile = computed(() => {
-  if (!contextMenuTargetPath.value) return null
-  return imageFiles.value.find(file => file.path === contextMenuTargetPath.value) || null
-})
 
-const hideImageContextMenu = () => {
-  showImageContextMenu.value = false
-  contextMenuTargetPath.value = ''
+// Reject backslash, forward slash, the printable reserved chars, and any ASCII
+// control / DEL code point. Control chars are checked by code point to avoid
+// embedding raw control bytes in the source.
+const ILLEGAL_NAME_CHARS = /[\\/<>:"|?*]/
+const isControlCode = (ch: string) => {
+  const code = ch.charCodeAt(0)
+  return code <= 0x1F || code === 0x7F
 }
 
 const validateRenameInput = (rawName: string) => {
   const next = rawName.trim()
   if (!next) return { valid: false, message: '文件名不能为空' }
   if (next === '.' || next === '..') return { valid: false, message: '文件名不合法' }
-  if (/[\\/\u0000-\u001F\u007F<>:"|?*]/.test(next)) return { valid: false, message: '文件名包含非法字符' }
+  if (ILLEGAL_NAME_CHARS.test(next) || [...next].some(isControlCode)) {
+    return { valid: false, message: '文件名包含非法字符' }
+  }
   if (next.length > 255) return { valid: false, message: '文件名过长' }
   return { valid: true, value: next }
-}
-
-const setImageContextMenuPosition = async (x: number, y: number) => {
-  imageContextMenuPosition.value = { x, y }
-  await nextTick()
-  const menuEl = actionLayerRef.value?.getMenuEl()
-  if (!menuEl) return
-
-  const margin = 8
-  const rect = menuEl.getBoundingClientRect()
-  let nextX = x
-  let nextY = y
-
-  if (nextX + rect.width + margin > window.innerWidth) {
-    nextX = window.innerWidth - rect.width - margin
-  }
-  if (nextY + rect.height + margin > window.innerHeight) {
-    nextY = window.innerHeight - rect.height - margin
-  }
-  if (nextX < margin) nextX = margin
-  if (nextY < margin) nextY = margin
-
-  imageContextMenuPosition.value = { x: nextX, y: nextY }
-}
-
-const openImageContextMenu = async (path: string, x: number, y: number) => {
-  contextMenuTargetPath.value = path
-  showImageContextMenu.value = true
-  await setImageContextMenuPosition(x, y)
 }
 
 const initLightbox = () => {
@@ -175,7 +136,6 @@ const closePreview = () => {
 }
 
 const handleNavigate = async (path: string) => {
-  hideImageContextMenu()
   await navigateTo(path)
 }
 
@@ -190,16 +150,15 @@ const handleImageLoaded = (path: string, event: Event) => {
 }
 
 const handleImageClick = async (index: number) => {
-  hideImageContextMenu()
   await openPreviewAt(index)
 }
 
-const handleImageContextMenu = (index: number, event: MouseEvent) => {
-  const file = imageFiles.value[index]
+const handleImageAction = (payload: { type: 'copy' | 'rename' | 'delete'; index: number }) => {
+  const file = imageFiles.value[payload.index]
   if (!file) return
-  event.preventDefault()
-  event.stopPropagation()
-  void openImageContextMenu(file.path, event.clientX, event.clientY)
+  if (payload.type === 'copy') return copyImageLink(file)
+  if (payload.type === 'rename') return openRenameModal(file)
+  return openDeleteConfirm(file)
 }
 
 const copyImageLink = async (file: FileItem | null) => {
@@ -208,16 +167,10 @@ const copyImageLink = async (file: FileItem | null) => {
   showToast(ok ? '链接已复制' : '复制失败')
 }
 
-const copyContextMenuLink = async () => {
-  await copyImageLink(contextMenuTargetFile.value)
-  hideImageContextMenu()
-}
-
 const openDeleteConfirm = (file?: FileItem | null) => {
   const target = file || currentPreviewFile.value
   if (!target) return
   actionTargetFile.value = target
-  hideImageContextMenu()
   closePreview()
   showDeleteConfirmModal.value = true
 }
@@ -241,7 +194,6 @@ const openRenameModal = (file?: FileItem | null) => {
   if (!target) return
   actionTargetFile.value = target
   renameValue.value = target.name
-  hideImageContextMenu()
   closePreview()
   showRenameModalState.value = true
 }
@@ -275,14 +227,6 @@ const confirmRename = async () => {
   }
 }
 
-const handleGlobalPointerDown = (event: Event) => {
-  const target = event.target as Node | null
-  const menuEl = actionLayerRef.value?.getMenuEl() || null
-  if (showImageContextMenu.value && !(target && menuEl?.contains(target))) {
-    hideImageContextMenu()
-  }
-}
-
 watch(
   imageFiles,
   async () => {
@@ -300,9 +244,6 @@ watch(
     imageLoaded.value = nextLoaded
     imageDimensions.value = nextDimensions
 
-    if (showImageContextMenu.value && !contextMenuTargetFile.value) {
-      hideImageContextMenu()
-    }
     await nextTick()
     initLightbox()
   },
@@ -326,32 +267,11 @@ onMounted(async () => {
   await fetchFiles()
   await nextTick()
   initLightbox()
-  document.addEventListener('pointerdown', handleGlobalPointerDown, true)
-  window.addEventListener('scroll', hideImageContextMenu, true)
-  window.addEventListener('resize', hideImageContextMenu)
 })
 
 onBeforeUnmount(() => {
-  hideImageContextMenu()
-  document.removeEventListener('pointerdown', handleGlobalPointerDown, true)
-  window.removeEventListener('scroll', hideImageContextMenu, true)
-  window.removeEventListener('resize', hideImageContextMenu)
   lightbox.value?.destroy()
   lightbox.value = null
   boundGalleryEl = null
 })
 </script>
-
-<style scoped>
-.page-container {
-  min-height: 100vh;
-  background: var(--color-page-bg);
-  padding: var(--space-6) var(--space-6) calc(var(--space-6) + var(--bottom-nav-offset, 96px));
-}
-
-@media (max-width: 768px) {
-  .page-container {
-    padding: var(--space-4) var(--space-4) calc(var(--space-4) + var(--bottom-nav-offset, 92px));
-  }
-}
-</style>

@@ -1,12 +1,5 @@
 <template>
-  <div class="auth-shell">
+  <div class="min-h-screen bg-background">
     <slot />
   </div>
 </template>
-
-<style scoped>
-.auth-shell {
-  min-height: 100vh;
-  background: var(--color-page-bg);
-}
-</style>

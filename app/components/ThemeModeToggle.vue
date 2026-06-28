@@ -1,59 +1,6 @@
-<template>
-  <button
-    type="button"
-    class="theme-toggle"
-    :title="buttonText"
-    :aria-label="buttonText"
-    @click="cycleMode"
-  >
-    <Transition name="theme-icon" mode="out-in">
-      <svg
-        v-if="mode === 'system'"
-        key="system"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.9"
-      >
-        <rect x="3" y="4" width="18" height="12" rx="2.2" />
-        <path d="M8 20h8" />
-        <path d="M12 16v4" />
-      </svg>
-
-      <svg
-        v-else-if="mode === 'light'"
-        key="light"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.9"
-      >
-        <circle cx="12" cy="12" r="4.2" />
-        <path d="M12 2.4v2.3" />
-        <path d="M12 19.3v2.3" />
-        <path d="M4.8 4.8 6.5 6.5" />
-        <path d="m17.5 17.5 1.7 1.7" />
-        <path d="M2.4 12h2.3" />
-        <path d="M19.3 12h2.3" />
-        <path d="m4.8 19.2 1.7-1.7" />
-        <path d="m17.5 6.5 1.7-1.7" />
-      </svg>
-
-      <svg
-        v-else
-        key="dark"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.9"
-      >
-        <path d="M21 12.7A8.7 8.7 0 1 1 11.3 3a7 7 0 0 0 9.7 9.7z" />
-      </svg>
-    </Transition>
-  </button>
-</template>
-
 <script setup lang="ts">
+import { Monitor, Moon, Sun } from 'lucide-vue-next'
+
 type ThemeMode = 'system' | 'light' | 'dark'
 type AppliedTheme = 'light' | 'dark'
 
@@ -63,6 +10,12 @@ const ROOT_TRANSITION_CLASS = 'theme-transitioning'
 const mode = ref<ThemeMode>('system')
 let mediaQuery: MediaQueryList | null = null
 let clearTransitionTimer: ReturnType<typeof setTimeout> | null = null
+
+const iconMap = {
+  system: Monitor,
+  light: Sun,
+  dark: Moon,
+} as const
 
 const buttonText = computed(() => {
   if (mode.value === 'system') return '主题：跟随系统'
@@ -119,7 +72,7 @@ const applyTheme = (sourceMode: ThemeMode, animated = true) => {
     }, 340)
   }
 
-  root.dataset.theme = resolved
+  root.classList.toggle('dark', resolved === 'dark')
   root.style.colorScheme = resolved
 }
 
@@ -134,15 +87,9 @@ const setMode = (nextMode: ThemeMode, options?: { persist?: boolean; animated?: 
 }
 
 const cycleMode = () => {
-  if (mode.value === 'system') {
-    setMode('light')
-    return
-  }
-  if (mode.value === 'light') {
-    setMode('dark')
-    return
-  }
-  setMode('system')
+  if (mode.value === 'system') return setMode('light')
+  if (mode.value === 'light') return setMode('dark')
+  return setMode('system')
 }
 
 const handleSystemThemeChange = () => {
@@ -177,32 +124,22 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<style scoped>
-.theme-toggle {
-  position: fixed;
-  top: calc(12px + env(safe-area-inset-top));
-  right: calc(14px + env(safe-area-inset-right));
-  z-index: 2400;
-  width: 40px;
-  height: 40px;
-  border: none;
-  border-radius: 10px;
-  background: transparent;
-  color: var(--color-text-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  cursor: pointer;
-  opacity: 0.94;
-  transition:
-    color 220ms ease,
-    opacity 220ms ease,
-    transform 220ms ease;
-}
+<template>
+  <button
+    type="button"
+    class="theme-toggle fixed right-[calc(14px+env(safe-area-inset-right))] top-[calc(12px+env(safe-area-inset-top))] z-[2400] flex size-10 items-center justify-center rounded-lg text-secondary-foreground opacity-95 transition hover:text-primary max-md:right-[calc(10px+env(safe-area-inset-right))] max-md:top-[calc(10px+env(safe-area-inset-top))]"
+    :title="buttonText"
+    :aria-label="buttonText"
+    @click="cycleMode"
+  >
+    <Transition name="theme-icon" mode="out-in">
+      <component :is="iconMap[mode]" :key="mode" class="size-[22px]" />
+    </Transition>
+  </button>
+</template>
 
+<style scoped>
 .theme-toggle:hover {
-  color: var(--color-primary);
   opacity: 1;
   transform: translateY(-1px);
 }
@@ -212,15 +149,8 @@ onBeforeUnmount(() => {
 }
 
 .theme-toggle:focus-visible {
-  outline: 2px solid var(--color-primary-ring);
+  outline: 2px solid var(--color-ring);
   outline-offset: 3px;
-}
-
-.theme-toggle svg {
-  width: 22px;
-  height: 22px;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 }
 
 .theme-icon-enter-active,
@@ -238,13 +168,6 @@ onBeforeUnmount(() => {
 .theme-icon-leave-to {
   opacity: 0;
   transform: rotate(20deg) scale(0.72);
-}
-
-@media (max-width: 768px) {
-  .theme-toggle {
-    top: calc(10px + env(safe-area-inset-top));
-    right: calc(10px + env(safe-area-inset-right));
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

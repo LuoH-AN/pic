@@ -1,5 +1,5 @@
 <template>
-  <div class="layout-shell">
+  <div class="min-h-screen bg-background">
     <ThemeModeToggle v-if="showThemeToggle" />
     <slot />
     <AppBottomNav />
@@ -11,10 +11,3 @@ const route = useRoute()
 
 const showThemeToggle = computed(() => route.path === '/')
 </script>
-
-<style scoped>
-.layout-shell {
-  min-height: 100vh;
-  background: var(--color-page-bg);
-}
-</style>

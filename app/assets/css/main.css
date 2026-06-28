@@ -1,155 +1,249 @@
-/* Global base styles aligned with the current UI components. */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
-html,
-body,
-#__nuxt {
-  margin: 0;
-  padding: 0;
-  min-height: 100%;
-}
+@custom-variant dark (&:where(.dark, .dark *));
 
+/* ────────────────────────────────────────────────────────────
+   Design tokens — shadcn-vue namespace.
+   Light/dark values are ported from the previous design system
+   (warm "paper" page background, blue primary, soft glow) so the
+   visual identity is preserved while adopting the shadcn variable
+   structure consumed by reka-ui based components.
+   ──────────────────────────────────────────────────────────── */
 :root {
-  --bottom-nav-offset: calc(70px + env(safe-area-inset-bottom));
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-6: 24px;
-  --space-10: 40px;
+  --radius: 0.875rem; /* 14px — matches previous --radius-md */
 
-  --color-page-bg: #f7f5ef;
-  --color-surface: #ffffff;
-  --color-surface-alt: #f3f2ee;
-  --color-hover: #eef2f7;
+  --background: #f7f5ef;
+  --foreground: #1f2937;
 
-  --color-border: #e3e0d9;
-  --color-border-strong: #d2cfc8;
+  --card: #ffffff;
+  --card-foreground: #1f2937;
 
-  --color-text-primary: #1f2937;
-  --color-text-secondary: #334155;
-  --color-text-muted: #64748b;
+  --popover: #ffffff;
+  --popover-foreground: #1f2937;
 
-  --color-primary: #1d4ed8;
-  --color-primary-strong: #1e40af;
-  --color-primary-soft: #dbeafe;
-  --color-primary-surface: rgba(29, 78, 216, 0.06);
-  --color-primary-ring: rgba(29, 78, 216, 0.18);
+  --primary: #1d4ed8;
+  --primary-foreground: #ffffff;
 
-  --color-success: #0f766e;
-  --color-danger: #b91c1c;
-  --color-danger-soft: #fca5a5;
-  --color-danger-surface: #fef2f2;
+  --secondary: #f3f2ee;
+  --secondary-foreground: #334155;
 
-  --color-toast-bg: rgba(15, 23, 42, 0.92);
-  --color-toast-text: #ffffff;
-  --color-toast-border: rgba(255, 255, 255, 0.14);
-  --color-overlay: rgba(15, 23, 42, 0.52);
-  --color-shimmer-start: #eef2f7;
-  --color-shimmer-mid: #f8fafc;
+  --muted: #f3f2ee;
+  --muted-foreground: #64748b;
 
-  --shadow-soft: 0 10px 32px rgba(15, 23, 42, 0.12);
-  --shadow-toast: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --accent: #eef2f7;
+  --accent-foreground: #334155;
+
+  --destructive: #b91c1c;
+  --destructive-foreground: #ffffff;
+
+  --success: #0f766e;
+  --success-foreground: #ffffff;
+
+  --border: #e3e0d9;
+  --input: #e3e0d9;
+  --ring: #1d4ed8;
+
+  /* Primary gradient + page glow (carried over from the old system) */
+  --primary-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  --accent-color: #6366f1;
+  --page-glow-a: rgba(99, 102, 241, 0.07);
+  --page-glow-b: rgba(56, 189, 248, 0.06);
+  --page-glow-c: rgba(29, 78, 216, 0.04);
+
+  --overlay: rgba(15, 23, 42, 0.52);
+
+  /* Charts / sidebar aliases kept for shadcn completeness */
+  --chart-1: #1d4ed8;
+  --chart-2: #6366f1;
+  --chart-3: #0f766e;
+  --chart-4: #b45309;
+  --chart-5: #be185d;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1f2937;
+  --sidebar-primary: #1d4ed8;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eef2f7;
+  --sidebar-accent-foreground: #334155;
+  --sidebar-border: #e3e0d9;
+  --sidebar-ring: #1d4ed8;
 }
 
-:root[data-theme='dark'] {
-  --color-page-bg: #101621;
-  --color-surface: #1a2432;
-  --color-surface-alt: #232e3d;
-  --color-hover: #2d3847;
+.dark {
+  --background: #101621;
+  --foreground: #edf2fb;
 
-  --color-border: #324052;
-  --color-border-strong: #405066;
+  --card: #1a2432;
+  --card-foreground: #edf2fb;
 
-  --color-text-primary: #edf2fb;
-  --color-text-secondary: #c8d5e8;
-  --color-text-muted: #9caec7;
+  --popover: #1a2432;
+  --popover-foreground: #edf2fb;
 
-  --color-primary: #8ab1ff;
-  --color-primary-strong: #a5c2ff;
-  --color-primary-soft: rgba(138, 177, 255, 0.2);
-  --color-primary-surface: rgba(138, 177, 255, 0.2);
-  --color-primary-ring: rgba(138, 177, 255, 0.42);
+  --primary: #8ab1ff;
+  --primary-foreground: #0b1220;
 
-  --color-success: #44c9b5;
-  --color-danger: #ff8b8b;
-  --color-danger-soft: #f87171;
-  --color-danger-surface: rgba(248, 113, 113, 0.16);
+  --secondary: #232e3d;
+  --secondary-foreground: #c8d5e8;
 
-  --color-toast-bg: rgba(2, 6, 23, 0.9);
-  --color-toast-text: #eff6ff;
-  --color-toast-border: rgba(148, 163, 184, 0.3);
-  --color-overlay: rgba(3, 9, 20, 0.72);
-  --color-shimmer-start: #283346;
-  --color-shimmer-mid: #33405a;
+  --muted: #232e3d;
+  --muted-foreground: #9caec7;
 
-  --shadow-soft: 0 12px 34px rgba(2, 6, 23, 0.46);
-  --shadow-toast: 0 6px 18px rgba(2, 6, 23, 0.45);
+  --accent: #2d3847;
+  --accent-foreground: #c8d5e8;
+
+  --destructive: #ff8b8b;
+  --destructive-foreground: #1a0606;
+
+  --success: #44c9b5;
+  --success-foreground: #04201c;
+
+  --border: #324052;
+  --input: #324052;
+  --ring: #8ab1ff;
+
+  --primary-gradient: linear-gradient(135deg, #60a5fa 0%, #818cf8 100%);
+  --accent-color: #818cf8;
+  --page-glow-a: rgba(99, 102, 241, 0.14);
+  --page-glow-b: rgba(56, 189, 248, 0.1);
+  --page-glow-c: rgba(138, 177, 255, 0.06);
+
+  --overlay: rgba(3, 9, 20, 0.72);
+
+  --chart-1: #8ab1ff;
+  --chart-2: #818cf8;
+  --chart-3: #44c9b5;
+  --chart-4: #fbbf24;
+  --chart-5: #f472b6;
+  --sidebar: #1a2432;
+  --sidebar-foreground: #edf2fb;
+  --sidebar-primary: #8ab1ff;
+  --sidebar-primary-foreground: #0b1220;
+  --sidebar-accent: #2d3847;
+  --sidebar-accent-foreground: #c8d5e8;
+  --sidebar-border: #324052;
+  --sidebar-ring: #8ab1ff;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --color-page-bg: #101621;
-    --color-surface: #1a2432;
-    --color-surface-alt: #232e3d;
-    --color-hover: #2d3847;
+/* Expose the raw tokens as Tailwind color utilities
+   (bg-background, text-foreground, border-border, ring-ring, …). */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-overlay: var(--overlay);
 
-    --color-border: #324052;
-    --color-border-strong: #405066;
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
 
-    --color-text-primary: #edf2fb;
-    --color-text-secondary: #c8d5e8;
-    --color-text-muted: #9caec7;
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 
-    --color-primary: #8ab1ff;
-    --color-primary-strong: #a5c2ff;
-    --color-primary-soft: rgba(138, 177, 255, 0.2);
-    --color-primary-surface: rgba(138, 177, 255, 0.2);
-    --color-primary-ring: rgba(138, 177, 255, 0.42);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 
-    --color-success: #44c9b5;
-    --color-danger: #ff8b8b;
-    --color-danger-soft: #f87171;
-    --color-danger-surface: rgba(248, 113, 113, 0.16);
+  --font-sans:
+    system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
 
-    --color-toast-bg: rgba(2, 6, 23, 0.9);
-    --color-toast-text: #eff6ff;
-    --color-toast-border: rgba(148, 163, 184, 0.3);
-    --color-overlay: rgba(3, 9, 20, 0.72);
-    --color-shimmer-start: #283346;
-    --color-shimmer-mid: #33405a;
+/* ── Base ─────────────────────────────────────────────────── */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    border-color: var(--color-border);
+  }
 
-    --shadow-soft: 0 12px 34px rgba(2, 6, 23, 0.46);
-    --shadow-toast: 0 6px 18px rgba(2, 6, 23, 0.45);
+  html,
+  body,
+  #__nuxt {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    color: var(--color-foreground);
+    background:
+      radial-gradient(1100px 520px at 10% -10%, var(--page-glow-a), transparent 58%),
+      radial-gradient(960px 480px at 104% -4%, var(--page-glow-b), transparent 55%),
+      radial-gradient(820px 620px at 50% 118%, var(--page-glow-c), transparent 60%),
+      var(--color-background);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Thin, themed scrollbars (visual only) */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 9999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--color-muted-foreground);
+    background-clip: content-box;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-primary) 22%, transparent);
+    color: var(--color-foreground);
   }
 }
 
-:root.theme-transitioning,
-:root.theme-transitioning *,
-:root.theme-transitioning *::before,
-:root.theme-transitioning *::after {
-  transition:
-    background-color 280ms ease,
-    border-color 280ms ease,
-    color 220ms ease,
-    fill 220ms ease,
-    stroke 220ms ease,
-    box-shadow 280ms ease;
+/* ── Layout helpers ───────────────────────────────────────── */
+:root {
+  --bottom-nav-offset: calc(70px + env(safe-area-inset-bottom));
 }
 
-body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color: var(--color-text-primary);
-  background: var(--color-page-bg);
-}
-
+/* ── Vue transitions (not Tailwind-managed) ───────────────── */
 .page-fade-enter-active,
 .page-fade-leave-active {
   transition: opacity 140ms ease;
 }
-
 .page-fade-enter-from,
 .page-fade-leave-to {
   opacity: 0;
@@ -163,19 +257,16 @@ body {
     transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
     max-height 260ms ease;
 }
-
 .expand-panel-enter-from {
   opacity: 0;
   transform: translateY(-8px);
   max-height: 0;
 }
-
 .expand-panel-enter-to {
   opacity: 1;
   transform: translateY(0);
   max-height: 420px;
 }
-
 .expand-panel-leave-active {
   overflow: hidden;
   transition:
@@ -183,24 +274,36 @@ body {
     transform 220ms ease,
     max-height 220ms ease;
 }
-
 .expand-panel-leave-from {
   opacity: 1;
   transform: translateY(0);
   max-height: 420px;
 }
-
 .expand-panel-leave-to {
   opacity: 0;
   transform: translateY(-6px);
   max-height: 0;
 }
 
+/* Smooth color transitions while switching themes (toggled by ThemeModeToggle). */
+.theme-transitioning,
+.theme-transitioning *,
+.theme-transitioning *::before,
+.theme-transitioning *::after {
+  transition:
+    background-color 280ms ease,
+    border-color 280ms ease,
+    color 220ms ease,
+    fill 220ms ease,
+    stroke 220ms ease,
+    box-shadow 280ms ease;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  :root.theme-transitioning,
-  :root.theme-transitioning *,
-  :root.theme-transitioning *::before,
-  :root.theme-transitioning *::after {
+  .theme-transitioning,
+  .theme-transitioning *,
+  .theme-transitioning *::before,
+  .theme-transitioning *::after {
     transition: none !important;
   }
 }

@@ -1,6 +1,6 @@
 <template>
-  <div class="page-container">
-    <div class="upload-wrapper">
+  <div class="flex min-h-[calc(100vh-var(--bottom-nav-offset,96px))] items-center justify-center px-6 py-10">
+    <div class="w-full max-w-[720px]">
       <UploadZone @files="addFiles" />
 
       <UploadFileList
@@ -13,28 +13,9 @@
         @remove-all="removeAll"
       />
     </div>
-
-    <Toast v-model="show" :message="message" />
   </div>
 </template>
 
 <script setup lang="ts">
 const { previewFiles, isUploading, addFiles, removeFile, removeAll, uploadSingle, uploadAll, copyUrl } = useUpload()
-const { show, message } = useAppToast()
 </script>
-
-<style scoped>
-.page-container {
-  min-height: calc(100vh - var(--bottom-nav-offset, 96px));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-page-bg);
-  padding: var(--space-10) var(--space-6);
-}
-
-.upload-wrapper {
-  width: 100%;
-  max-width: 720px;
-}
-</style>

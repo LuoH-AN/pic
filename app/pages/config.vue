@@ -1,6 +1,6 @@
 <template>
-  <div class="page-container">
-    <div class="config-wrapper">
+  <div class="flex min-h-[calc(100vh-var(--bottom-nav-offset,96px))] items-center justify-center px-6 py-10">
+    <div class="flex w-full max-w-[560px] flex-col gap-6">
       <ConfigCompressConfigForm v-model="config.compress" />
       <ConfigRenameConfigForm v-model="config.rename" />
     </div>
@@ -43,22 +43,3 @@ onBeforeUnmount(() => {
   }
 })
 </script>
-
-<style scoped>
-.page-container {
-  min-height: calc(100vh - var(--bottom-nav-offset, 96px));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-page-bg);
-  padding: var(--space-10) var(--space-6);
-}
-
-.config-wrapper {
-  width: 100%;
-  max-width: 560px;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-}
-</style>
