@@ -169,8 +169,12 @@ export function useUpload() {
         const ratio = 1 - (uploadFile.size / previewFile.file.size)
         const ratioText = ratio > 0
           ? `，体积降低 ${(ratio * 100).toFixed(1)}%`
-          : ''
+          : '，体积未减小'
         showToast(`上传成功（客户端压缩${ratioText}）`)
+      } else if (clientConfig.compress.enabled) {
+        // 启用了压缩却走到这里 → compressImageForUpload 抛错，已 fallback 为原图。
+        // 显式提示，避免"上传成功"掩盖压缩失败（常见诱因：HEIC 等格式无法被浏览器解码、AVIF Worker/WASM 加载失败）。
+        showToast('上传成功（压缩失败，已上传原图）')
       } else {
         showToast('上传成功')
       }

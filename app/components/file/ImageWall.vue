@@ -68,7 +68,7 @@ const getPlaceholderStyle = (file: FileItem) => {
     <UiContextMenu v-for="(file, index) in imageFiles" :key="file.path">
       <UiContextMenuTrigger as-child>
         <a
-          class="mb-3.5 block w-full cursor-zoom-in break-inside-avoid overflow-hidden rounded-lg border bg-secondary transition-colors hover:border-foreground/30 hover:bg-muted max-md:mb-2.5"
+          class="pswp-gallery-item mb-3.5 block w-full cursor-zoom-in break-inside-avoid overflow-hidden rounded-lg border bg-secondary transition-colors hover:border-foreground/30 hover:bg-muted max-md:mb-2.5"
           :style="!isLoaded(file.path) ? getPlaceholderStyle(file) : undefined"
           :href="getImageUrl(file)"
           :data-pswp-width="getPhotoWidth(file)"

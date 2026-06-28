@@ -35,7 +35,11 @@ export function useAppToast() {
   }
 
   const showLoadingToast = (message: string) => {
-    push(message, INFINITE)
+    // Loading/status toasts are exclusive — clear the queue first so a tight
+    // loop (e.g. per-file upload/compress progress) replaces instead of
+    // stacking duplicate toasts.
+    toasts.value = []
+    return push(message, INFINITE)
   }
 
   const hideToast = () => {

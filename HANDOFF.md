@@ -35,6 +35,18 @@
 
 > 设计决策备注：**删除按钮保留了红色**（`destructive`），因为删除操作的警示色是通用 UX 惯例。如果需要**纯粹黑白灰连红色也去掉**，见下方「待定决策」。
 
+### 第三轮：静态审查修复 3 个迁移回归（2026-06-28，未提交）
+
+> ⚠️ 本次环境**未安装 Node/pnpm**，无法运行 `nuxt build` / `pnpm dev` / `vue-tsc`。下列 3 个 bug 均为**纯静态代码审查 + git 历史比对**定位并修复，**尚未在浏览器实跑复测**。请接手者在 node 环境复测后提交。
+
+1. **PhotoSwipe 点击图片打不开大图（高优先级）** — `file.vue` 配置 `children: 'a.pswp-gallery-item'`，但迁移时 `ImageWall.vue` 的 `<a>` 丢了这个 class，选择器匹配不到任何元素 → `loadAndOpen` 拿到空数据源。已对比 v0.1.0（`b4ff0bf`）确认原版 `<a>` 有 `class="wall-item pswp-gallery-item"`。**修复**：在 `ImageWall.vue` 的 `<a>` 补回 `pswp-gallery-item`。
+2. **上传/压缩进度 toast 堆叠（中）** — 原 `useAppToast` 是单 toast 模型（覆盖式），迁移改成列表追加后，上传循环里 `showLoadingToast` 每次追加一条 → 多条"正在处理图片预览"堆叠。**修复**：`showLoadingToast` 先清空队列再 push（恢复"同一时刻只有一个 loading toast"的语义）。
+3. **右键/下拉菜单 destructive 项不变红（低/外观）** — `ContextMenuItem.vue`/`DropdownMenuItem.vue` 用 `data-[variant=destructive]` 选择器（匹配 `[data-variant="destructive"]`），但 `variant` 经 `useForwardPropsEmits` 原样转发给 reka-ui，reka-ui 菜单项没有该 prop → 渲染成普通属性 `variant="…"`（非 `data-variant`），选择器失效。**修复**：从转发中剥离 `class/inset/variant`，改为显式绑定 `:data-variant="variant"`。
+
+附带**设计调整（两处判断，可回退）**：
+- 主题切换按钮原先 `v-if="route.path === '/'"` 只在上传页显示；现改为**全局显示**（`default.vue`），与 HANDOFF「全局」描述一致（FOUC 脚本与主题持久化本就是全局的）。若只想在上传页显示可改回。
+- HANDOFF「待定决策」里的「删除按钮保留红色」：本轮修复 #3 后，**右键菜单删除项也会正确变红**，与设计意图一致。
+
 ---
 
 ## ✅ 当前可确认完成的事
@@ -52,6 +64,8 @@
 ### 1. 浏览器实机冒烟验证（最重要）
 
 **`nuxt build` 通过只代表代码能编译，不等于视觉和交互正确。** 目前还没有在真实浏览器里运行过一次。请接手者执行 `pnpm dev`，逐项验证以下场景：
+
+> 🔁 本轮（第三轮）已修复 3 个回归，**冒烟时务必重点复测**：(a) `/file` 点击图片能打开 PhotoSwipe 大图；(b) 上传多张图片时只出现一条更新中的进度 toast、不堆叠；(c) 图片右键菜单的"删除图片"项是红色。
 
 | 页面/功能 | 验证点 |
 |---|---|
