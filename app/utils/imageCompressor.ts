@@ -33,11 +33,14 @@ const resolveMaxDimension = (file: File) => {
 }
 
 // 解码并按需缩放，返回承载像素的 canvas。
+// createImageBitmap 对某些图片会解码失败（HEIC 套 .jpg 后缀、CMYK / 带 ICC 的特殊
+// JPEG、损坏图等）。先试 createImageBitmap（最快），失败再用 <img>.decode() 兜底
+// （浏览器 <img> 解码器更宽容，能解部分 createImageBitmap 解不了的图）。
 const drawToCanvas = async (source: Blob, maxDimension: number): Promise<HTMLCanvasElement> => {
-  const bitmap = await createImageBitmap(source)
+  const natural = await decodeToNaturalSize(source)
   try {
-    let width = bitmap.width
-    let height = bitmap.height
+    let width = natural.width
+    let height = natural.height
     const longest = Math.max(width, height)
     if (maxDimension > 0 && longest > maxDimension) {
       const scale = maxDimension / longest
@@ -50,10 +53,47 @@ const drawToCanvas = async (source: Blob, maxDimension: number): Promise<HTMLCan
     canvas.height = height
     const ctx = canvas.getContext('2d')
     if (!ctx) throw new Error('无法获取 canvas 2d 上下文')
-    ctx.drawImage(bitmap, 0, 0, width, height)
+    natural.drawTo(ctx, width, height)
     return canvas
   } finally {
-    bitmap.close?.()
+    natural.close?.()
+  }
+}
+
+// 第一优先级：createImageBitmap（同步路径快、且能用 transfer/out 副本）。
+const decodeViaBitmap = (source: Blob) =>
+  createImageBitmap(source).then(bitmap => ({
+    width: bitmap.width,
+    height: bitmap.height,
+    drawTo: (ctx: CanvasRenderingContext2D, w: number, h: number) => ctx.drawImage(bitmap, 0, 0, w, h),
+    close: () => bitmap.close?.(),
+  }))
+
+// 兜底：<img> + decode()。部分图（带 ICC / 某些 CMYK JPEG）这里能解出来。
+const decodeViaImage = async (source: Blob) => {
+  const url = URL.createObjectURL(source)
+  try {
+    const img = new Image()
+    img.decoding = 'async'
+    img.src = url
+    await img.decode()
+    return {
+      width: img.naturalWidth,
+      height: img.naturalHeight,
+      drawTo: (ctx: CanvasRenderingContext2D, w: number, h: number) => ctx.drawImage(img, 0, 0, w, h),
+      close: () => {},
+    }
+  } finally {
+    URL.revokeObjectURL(url)
+  }
+}
+
+const decodeToNaturalSize = async (source: Blob) => {
+  try {
+    return await decodeViaBitmap(source)
+  } catch (error) {
+    console.warn('createImageBitmap 解码失败，回退 <img> 解码:', error)
+    return decodeViaImage(source)
   }
 }
 

@@ -116,21 +116,9 @@ export function useUpload() {
         try {
           uploadFile = await compressImageForUpload(previewFile.file, clientConfig.compress)
           compressedByClient = true
-          // [diag] 压缩成功：入参 vs 产物
-          console.info('[pic-diag] 压缩成功', {
-            原始: { name: previewFile.file.name, type: previewFile.file.type, size: previewFile.file.size },
-            目标格式: clientConfig.compress.format,
-            产物: { name: uploadFile.name, type: uploadFile.type, size: uploadFile.size },
-          })
         } catch (compressionError) {
           // 压缩失败时不再中断上传，改为上传原图，避免丢失这次上传。
           console.error('客户端压缩失败，改为上传原图:', compressionError)
-          // [diag] 压缩抛错：入参 + 失败原因
-          console.info('[pic-diag] 压缩失败', {
-            原始: { name: previewFile.file.name, type: previewFile.file.type, size: previewFile.file.size },
-            目标格式: clientConfig.compress.format,
-            错误: compressionError instanceof Error ? compressionError.message : String(compressionError),
-          })
           uploadFile = previewFile.file
           compressedByClient = false
         } finally {
@@ -157,14 +145,6 @@ export function useUpload() {
       if (!presignResponse.success || !presignResponse.uploadUrl) {
         throw new Error('上传签名失败')
       }
-
-      // [diag] 实际提交给 S3 的文件名/类型（看后缀是否被改写）
-      console.info('[pic-diag] 提交上传', {
-        文件名: uploadFile.name,
-        类型: uploadFile.type,
-        体积: uploadFile.size,
-        服务器返回路径: presignResponse.path ?? presignResponse.url,
-      })
 
       const uploadHeaders = { ...(presignResponse.headers || {}) }
       if (!uploadHeaders['Content-Type']) {
@@ -193,8 +173,8 @@ export function useUpload() {
         showToast(`上传成功（客户端压缩${ratioText}）`)
       } else if (clientConfig.compress.enabled) {
         // 启用了压缩却走到这里 → compressImageForUpload 抛错，已 fallback 为原图。
-        // 显式提示，避免"上传成功"掩盖压缩失败（常见诱因：HEIC 等格式无法被浏览器解码、AVIF Worker/WASM 加载失败）。
-        showToast('上传成功（压缩失败，已上传原图）')
+        // 最常见诱因：源图无法被浏览器解码（HEIC 套 .jpg 后缀、CMYK / 带 ICC 的特殊 JPEG、损坏图）。
+        showToast('上传成功（该图无法压缩，已上传原图）')
       } else {
         showToast('上传成功')
       }
