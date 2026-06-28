@@ -25,7 +25,7 @@ const isActive = (to: string) => {
 <template>
   <nav
     aria-label="底部导航"
-    class="fixed bottom-[calc(12px+env(safe-area-inset-bottom))] left-1/2 z-[2300] flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-border/70 bg-card/85 px-2 py-1.5 shadow-md backdrop-blur-xl"
+    class="fixed bottom-[calc(12px+env(safe-area-inset-bottom))] left-1/2 z-[2300] flex -translate-x-1/2 items-center gap-1 rounded-full border bg-card px-2 py-1.5"
   >
     <NuxtLink
       v-for="item in items"
@@ -34,8 +34,8 @@ const isActive = (to: string) => {
       :aria-label="item.label"
       :title="item.label"
       :class="cn(
-        'flex h-9 w-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:-translate-y-px hover:bg-accent hover:text-primary',
-        isActive(item.to) && 'bg-primary/10 text-primary shadow-[inset_0_0_0_1px_var(--ring)]',
+        'flex h-9 w-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground',
+        isActive(item.to) && 'bg-foreground text-background hover:bg-foreground hover:text-background',
       )"
     >
       <component :is="iconMap[item.icon]" class="size-5" />

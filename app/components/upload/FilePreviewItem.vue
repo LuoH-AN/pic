@@ -11,7 +11,7 @@ defineEmits<{
 </script>
 
 <template>
-  <div class="flex items-center gap-4 rounded-md border bg-card p-3 px-4 shadow-xs transition duration-200 hover:-translate-y-px hover:border-input hover:shadow-sm">
+  <div class="flex items-center gap-4 rounded-lg border bg-card p-3 px-4 transition-colors hover:border-input hover:bg-accent/40">
     <div
       class="size-16 shrink-0 overflow-hidden rounded-lg border bg-secondary"
       :class="{ 'flex items-center justify-center': !file.preview }"
@@ -29,7 +29,7 @@ defineEmits<{
 
     <div
       v-if="file.uploaded"
-      class="flex-1 cursor-pointer truncate rounded-lg bg-secondary px-3 py-2 text-xs text-muted-foreground transition hover:bg-accent hover:text-primary"
+      class="flex-1 cursor-pointer truncate rounded-md bg-secondary px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
       @click="$emit('copy', file.url, file)"
     >
       {{ file.url }}

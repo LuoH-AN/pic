@@ -4,128 +4,112 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ────────────────────────────────────────────────────────────
-   Design tokens — shadcn-vue namespace.
-   Light/dark values are ported from the previous design system
-   (warm "paper" page background, blue primary, soft glow) so the
-   visual identity is preserved while adopting the shadcn variable
-   structure consumed by reka-ui based components.
+   Design tokens — monochrome (black/white/gray), flat, modern.
+   Visual hierarchy comes from borders and spacing, not shadows or
+   gradients. Neutral "zinc" scale; primary inverts per theme
+   (near-black in light, near-white in dark).
    ──────────────────────────────────────────────────────────── */
 :root {
-  --radius: 0.875rem; /* 14px — matches previous --radius-md */
+  --radius: 0.75rem;
 
-  --background: #f7f5ef;
-  --foreground: #1f2937;
+  --background: #ffffff;
+  --foreground: #09090b;
 
   --card: #ffffff;
-  --card-foreground: #1f2937;
+  --card-foreground: #09090b;
 
   --popover: #ffffff;
-  --popover-foreground: #1f2937;
+  --popover-foreground: #09090b;
 
-  --primary: #1d4ed8;
-  --primary-foreground: #ffffff;
+  --primary: #18181b;
+  --primary-foreground: #fafafa;
 
-  --secondary: #f3f2ee;
-  --secondary-foreground: #334155;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
 
-  --muted: #f3f2ee;
-  --muted-foreground: #64748b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
 
-  --accent: #eef2f7;
-  --accent-foreground: #334155;
+  --accent: #f4f4f5;
+  --accent-foreground: #18181b;
 
-  --destructive: #b91c1c;
-  --destructive-foreground: #ffffff;
+  --destructive: #ef4444;
+  --destructive-foreground: #fafafa;
 
-  --success: #0f766e;
-  --success-foreground: #ffffff;
+  --success: #18181b;
+  --success-foreground: #fafafa;
 
-  --border: #e3e0d9;
-  --input: #e3e0d9;
-  --ring: #1d4ed8;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ring: #18181b;
 
-  /* Primary gradient + page glow (carried over from the old system) */
-  --primary-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  --accent-color: #6366f1;
-  --page-glow-a: rgba(99, 102, 241, 0.07);
-  --page-glow-b: rgba(56, 189, 248, 0.06);
-  --page-glow-c: rgba(29, 78, 216, 0.04);
+  --overlay: rgba(9, 9, 11, 0.4);
 
-  --overlay: rgba(15, 23, 42, 0.52);
-
-  /* Charts / sidebar aliases kept for shadcn completeness */
-  --chart-1: #1d4ed8;
-  --chart-2: #6366f1;
-  --chart-3: #0f766e;
-  --chart-4: #b45309;
-  --chart-5: #be185d;
+  --chart-1: #18181b;
+  --chart-2: #52525b;
+  --chart-3: #a1a1aa;
+  --chart-4: #d4d4d8;
+  --chart-5: #27272a;
   --sidebar: #ffffff;
-  --sidebar-foreground: #1f2937;
-  --sidebar-primary: #1d4ed8;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #eef2f7;
-  --sidebar-accent-foreground: #334155;
-  --sidebar-border: #e3e0d9;
-  --sidebar-ring: #1d4ed8;
+  --sidebar-foreground: #09090b;
+  --sidebar-primary: #18181b;
+  --sidebar-primary-foreground: #fafafa;
+  --sidebar-accent: #f4f4f5;
+  --sidebar-accent-foreground: #18181b;
+  --sidebar-border: #e4e4e7;
+  --sidebar-ring: #18181b;
 }
 
 .dark {
-  --background: #101621;
-  --foreground: #edf2fb;
+  --background: #09090b;
+  --foreground: #fafafa;
 
-  --card: #1a2432;
-  --card-foreground: #edf2fb;
+  --card: #0c0c0e;
+  --card-foreground: #fafafa;
 
-  --popover: #1a2432;
-  --popover-foreground: #edf2fb;
+  --popover: #0c0c0e;
+  --popover-foreground: #fafafa;
 
-  --primary: #8ab1ff;
-  --primary-foreground: #0b1220;
+  --primary: #fafafa;
+  --primary-foreground: #09090b;
 
-  --secondary: #232e3d;
-  --secondary-foreground: #c8d5e8;
+  --secondary: #1f1f23;
+  --secondary-foreground: #fafafa;
 
-  --muted: #232e3d;
-  --muted-foreground: #9caec7;
+  --muted: #1f1f23;
+  --muted-foreground: #a1a1aa;
 
-  --accent: #2d3847;
-  --accent-foreground: #c8d5e8;
+  --accent: #1f1f23;
+  --accent-foreground: #fafafa;
 
-  --destructive: #ff8b8b;
-  --destructive-foreground: #1a0606;
+  --destructive: #f87171;
+  --destructive-foreground: #09090b;
 
-  --success: #44c9b5;
-  --success-foreground: #04201c;
+  --success: #fafafa;
+  --success-foreground: #09090b;
 
-  --border: #324052;
-  --input: #324052;
-  --ring: #8ab1ff;
+  --border: #27272a;
+  --input: #27272a;
+  --ring: #d4d4d8;
 
-  --primary-gradient: linear-gradient(135deg, #60a5fa 0%, #818cf8 100%);
-  --accent-color: #818cf8;
-  --page-glow-a: rgba(99, 102, 241, 0.14);
-  --page-glow-b: rgba(56, 189, 248, 0.1);
-  --page-glow-c: rgba(138, 177, 255, 0.06);
+  --overlay: rgba(0, 0, 0, 0.6);
 
-  --overlay: rgba(3, 9, 20, 0.72);
-
-  --chart-1: #8ab1ff;
-  --chart-2: #818cf8;
-  --chart-3: #44c9b5;
-  --chart-4: #fbbf24;
-  --chart-5: #f472b6;
-  --sidebar: #1a2432;
-  --sidebar-foreground: #edf2fb;
-  --sidebar-primary: #8ab1ff;
-  --sidebar-primary-foreground: #0b1220;
-  --sidebar-accent: #2d3847;
-  --sidebar-accent-foreground: #c8d5e8;
-  --sidebar-border: #324052;
-  --sidebar-ring: #8ab1ff;
+  --chart-1: #fafafa;
+  --chart-2: #a1a1aa;
+  --chart-3: #71717a;
+  --chart-4: #52525b;
+  --chart-5: #e4e4e7;
+  --sidebar: #0c0c0e;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #fafafa;
+  --sidebar-primary-foreground: #09090b;
+  --sidebar-accent: #1f1f23;
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: #27272a;
+  --sidebar-ring: #d4d4d8;
 }
 
-/* Expose the raw tokens as Tailwind color utilities
-   (bg-background, text-foreground, border-border, ring-ring, …). */
+/* Expose tokens as Tailwind color utilities. */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -194,12 +178,7 @@
   body {
     font-family: var(--font-sans);
     color: var(--color-foreground);
-    background:
-      radial-gradient(1100px 520px at 10% -10%, var(--page-glow-a), transparent 58%),
-      radial-gradient(960px 480px at 104% -4%, var(--page-glow-b), transparent 55%),
-      radial-gradient(820px 620px at 50% 118%, var(--page-glow-c), transparent 60%),
-      var(--color-background);
-    background-attachment: fixed;
+    background: var(--color-background);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -211,8 +190,8 @@
     scrollbar-color: var(--color-border) transparent;
   }
   *::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
   }
   *::-webkit-scrollbar-track {
     background: transparent;
@@ -220,17 +199,14 @@
   *::-webkit-scrollbar-thumb {
     background: var(--color-border);
     border-radius: 9999px;
-    border: 3px solid transparent;
-    background-clip: content-box;
   }
   *::-webkit-scrollbar-thumb:hover {
     background: var(--color-muted-foreground);
-    background-clip: content-box;
   }
 
   ::selection {
-    background: color-mix(in oklab, var(--color-primary) 22%, transparent);
-    color: var(--color-foreground);
+    background: var(--color-foreground);
+    color: var(--color-background);
   }
 }
 
@@ -295,8 +271,7 @@
     border-color 280ms ease,
     color 220ms ease,
     fill 220ms ease,
-    stroke 220ms ease,
-    box-shadow 280ms ease;
+    stroke 220ms ease;
 }
 
 @media (prefers-reduced-motion: reduce) {

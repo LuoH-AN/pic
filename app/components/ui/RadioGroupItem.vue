@@ -20,7 +20,7 @@ const delegatedProps = computed(() => {
   <RekaRadioGroupItem
     v-bind="delegatedProps"
     :class="cn(
-      'aspect-square size-4 rounded-full border border-primary text-primary shadow-xs',
+      'aspect-square size-4 rounded-full border border-primary text-primary',
       'focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40',
       'disabled:cursor-not-allowed disabled:opacity-50',
       'data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground',

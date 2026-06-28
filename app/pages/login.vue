@@ -1,17 +1,16 @@
 <template>
   <div class="flex min-h-screen items-center justify-center px-6 py-10">
-    <div class="relative flex w-full max-w-[440px] flex-col gap-6 rounded-xl border bg-card p-7 pt-9 shadow-[0_18px_50px_var(--ring)] max-md:rounded-lg max-md:px-5 max-md:pt-7">
-      <div class="flex flex-col items-center gap-2.5 text-center">
+    <div class="relative flex w-full max-w-[420px] flex-col gap-8 rounded-xl border bg-card p-8 max-md:rounded-lg max-md:p-6">
+      <div class="flex flex-col items-center gap-3 text-center">
         <div
-          class="mb-0.5 flex size-[60px] items-center justify-center rounded-2xl text-white shadow-[0_12px_30px_var(--ring)]"
-          style="background: var(--primary-gradient)"
+          class="flex size-12 items-center justify-center rounded-xl border bg-background text-foreground"
         >
-          <Lock class="size-7" />
+          <Lock class="size-5" />
         </div>
-        <h1 class="m-0 text-2xl font-bold tracking-tight text-foreground max-md:text-[21px]">
+        <h1 class="m-0 text-xl font-semibold tracking-tight text-foreground">
           访问验证
         </h1>
-        <p class="m-0 text-[13.5px] text-muted-foreground">
+        <p class="m-0 text-sm text-muted-foreground">
           请输入访问密码以继续
         </p>
       </div>
@@ -25,7 +24,7 @@
           placeholder="请输入访问密码"
           autocomplete="current-password"
           :disabled="loading"
-          class="h-[46px]"
+          class="h-10"
         />
 
         <p v-if="errorMessage" class="m-0 mt-0.5 text-[13px] text-destructive">
@@ -34,12 +33,12 @@
 
         <UiButton
           type="submit"
-          variant="gradient"
+          variant="default"
           size="lg"
           :disabled="loading"
-          class="mt-1.5 h-[46px] w-full"
+          class="mt-2 h-10 w-full"
         >
-          <Loader2 v-if="loading" class="size-[17px] animate-spin" />
+          <Loader2 v-if="loading" class="size-4 animate-spin" />
           <span>{{ loading ? '验证中...' : '进入系统' }}</span>
         </UiButton>
       </form>

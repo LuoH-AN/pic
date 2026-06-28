@@ -68,7 +68,7 @@ const getPlaceholderStyle = (file: FileItem) => {
     <UiContextMenu v-for="(file, index) in imageFiles" :key="file.path">
       <UiContextMenuTrigger as-child>
         <a
-          class="mb-3.5 block w-full cursor-zoom-in break-inside-avoid overflow-hidden rounded-md border bg-secondary shadow-xs transition duration-200 hover:-translate-y-1 hover:border-input hover:shadow-md max-md:mb-2.5"
+          class="mb-3.5 block w-full cursor-zoom-in break-inside-avoid overflow-hidden rounded-lg border bg-secondary transition-colors hover:border-foreground/30 hover:bg-muted max-md:mb-2.5"
           :style="!isLoaded(file.path) ? getPlaceholderStyle(file) : undefined"
           :href="getImageUrl(file)"
           :data-pswp-width="getPhotoWidth(file)"
@@ -94,11 +94,11 @@ const getPlaceholderStyle = (file: FileItem) => {
 
       <UiContextMenuContent>
         <UiContextMenuItem @select="$emit('image-action', { type: 'copy', index })">
-          <Link class="size-4 text-primary" />
+          <Link class="size-4 text-muted-foreground" />
           <span>复制链接</span>
         </UiContextMenuItem>
         <UiContextMenuItem @select="$emit('image-action', { type: 'rename', index })">
-          <Pencil class="size-4 text-success" />
+          <Pencil class="size-4 text-muted-foreground" />
           <span>重命名</span>
         </UiContextMenuItem>
         <UiContextMenuSeparator />

@@ -18,7 +18,7 @@ const handleOpenChange = (id: number, open: boolean) => {
       :key="toast.id"
       :duration="toast.duration"
       :default-open="true"
-      class="group pointer-events-auto relative flex items-center justify-center gap-2 rounded-full border bg-card px-5 py-2.5 text-sm text-card-foreground shadow-md outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-bottom-full data-[swipe=move]:translate-x-[var(--reka-toast-swipe-move-x)] data-[swipe=cancel]:translate-x-0"
+      class="group pointer-events-auto relative flex items-center justify-center gap-2 rounded-full border bg-card px-5 py-2.5 text-sm text-card-foreground outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-bottom-full data-[swipe=move]:translate-x-[var(--reka-toast-swipe-move-x)] data-[swipe=cancel]:translate-x-0"
       @update:open="handleOpenChange(toast.id, $event)"
     >
       <span>{{ toast.message }}</span>

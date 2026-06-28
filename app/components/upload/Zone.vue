@@ -40,7 +40,7 @@ const handleDrop = (event: DragEvent) => {
 
 <template>
   <div
-    class="upload-zone group relative cursor-pointer overflow-hidden rounded-xl border-2 border-dashed border-input bg-card p-[52px_40px] text-center outline-none transition-all hover:-translate-y-px hover:border-primary hover:shadow-sm focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-ring/40 data-[drag-over=true]:scale-[1.004] data-[drag-over=true]:border-primary data-[drag-over=true]:bg-primary/10 data-[drag-over=true]:shadow-[0_14px_34px_var(--ring)] max-md:rounded-lg max-md:p-[42px_22px]"
+    class="group relative cursor-pointer overflow-hidden rounded-xl border-2 border-dashed border-input bg-card p-[52px_40px] text-center outline-none transition-colors hover:border-foreground hover:bg-accent/50 focus-visible:border-foreground focus-visible:ring-[3px] focus-visible:ring-ring/40 data-[drag-over=true]:border-foreground data-[drag-over=true]:bg-accent/50 max-md:rounded-lg max-md:p-[42px_22px]"
     :data-drag-over="isDragOver"
     role="button"
     tabindex="0"
@@ -61,14 +61,11 @@ const handleDrop = (event: DragEvent) => {
       @change="handleFileSelect"
     >
 
-    <div class="upload-glow pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-data-[drag-over=true]:opacity-100" aria-hidden="true" />
-
-    <div class="relative flex flex-col items-center gap-3.5">
+    <div class="relative flex flex-col items-center gap-4">
       <div
-        class="flex size-[72px] items-center justify-center rounded-2xl text-white shadow-[0_14px_34px_var(--ring)] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-0.5 group-hover:scale-105 group-data-[drag-over=true]:-translate-y-0.5 group-data-[drag-over=true]:scale-105 max-md:size-16"
-        style="background: var(--primary-gradient)"
+        class="flex size-[68px] items-center justify-center rounded-2xl border bg-background text-foreground transition-colors group-hover:border-foreground group-data-[drag-over=true]:border-foreground max-md:size-16"
       >
-        <CloudUpload class="size-[34px] max-md:size-[30px]" />
+        <CloudUpload class="size-7 max-md:size-6" />
       </div>
 
       <div class="flex flex-col gap-1">
@@ -76,23 +73,13 @@ const handleDrop = (event: DragEvent) => {
           拖拽图片到此处
         </p>
         <p class="m-0 text-sm text-muted-foreground">
-          或<span class="mx-1 font-semibold text-primary">点击选择</span>文件
+          或<span class="mx-1 font-medium text-foreground underline-offset-2 group-hover:underline">点击选择</span>文件
         </p>
       </div>
 
-      <p class="m-0 mt-1 inline-block rounded-full bg-secondary px-3 py-1.5 text-[12.5px] text-muted-foreground">
+      <p class="m-0 inline-block rounded-full bg-secondary px-3 py-1.5 text-[12.5px] text-muted-foreground">
         支持 JPG · PNG · WebP · AVIF · 单张 ≤ {{ maxUploadSizeMb }}MB
       </p>
     </div>
   </div>
 </template>
-
-<style scoped>
-.upload-glow {
-  background: radial-gradient(
-    440px 220px at 50% -10%,
-    color-mix(in oklab, var(--color-primary) 8%, transparent),
-    transparent 70%
-  );
-}
-</style>

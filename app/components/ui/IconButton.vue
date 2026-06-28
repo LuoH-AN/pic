@@ -25,9 +25,8 @@ const props = withDefaults(defineProps<Props>(), {
     :title="props.title"
     :aria-label="props.title"
     :class="cn(
-      props.variant === 'upload' && 'text-primary hover:text-primary',
-      props.variant === 'copy' && 'text-success hover:text-success',
-      props.variant === 'delete' && 'text-destructive hover:text-destructive',
+      'text-muted-foreground hover:text-foreground',
+      props.variant === 'delete' && 'hover:text-destructive',
     )"
   >
     <Loader v-if="props.loading" class="size-4 animate-spin" />

@@ -1,6 +1,6 @@
 <template>
   <section
-    class="flex items-center gap-2.5 rounded-xl border bg-card px-4 py-3.5 shadow-sm"
+    class="flex items-center gap-2.5 rounded-xl border bg-card px-4 py-3.5"
   >
     <UiButton
       variant="outline"
