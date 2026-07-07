@@ -12,8 +12,8 @@ const props = defineProps<DropdownMenuItemProps & { class?: HTMLAttributes['clas
 const emits = defineEmits<DropdownMenuItemEmits>()
 
 // Strip our own props before forwarding so reka-ui doesn't render them as
-// plain DOM attributes. `variant` is re-bound below as `data-variant`, which
-// is what the Tailwind `data-[variant=...]` selectors match.
+// plain DOM attributes. `variant` is re-bound below as `data-variant`,
+// which the .menu-item[data-variant=...] selectors match.
 const delegatedProps = computed(() => {
   const { class: _omit, inset: _inset, variant: _variant, ...delegated } = props
   return delegated
@@ -24,15 +24,8 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
 <template>
   <DropdownMenuItem
     v-bind="forwarded"
-    data-slot="dropdown-menu-item"
     :data-variant="variant"
-    :class="cn(
-      'relative flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-none transition-colors',
-      'focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-      'data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10',
-      inset && 'pl-8',
-      props.class,
-    )"
+    :class="cn('menu-item', inset && 'menu-item--inset', props.class)"
   >
     <slot />
   </DropdownMenuItem>

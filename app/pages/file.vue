@@ -1,17 +1,17 @@
 <template>
-  <div class="min-h-screen px-6 pb-[calc(1.5rem+var(--bottom-nav-offset,96px))] pt-6 max-md:px-4 max-md:pt-4">
+  <div class="file-page">
     <FileManagerContent
       ref="fileManagerRef"
       :current-path="currentPath"
       :folders="folders"
       :loading="loading"
-      :image-files="imageFiles"
+      :files="files"
       :image-loaded="imageLoaded"
       :image-dimensions="imageDimensions"
       :get-image-url="getImageUrl"
       @navigate="handleNavigate"
       @image-click="handleImageClick"
-      @image-action="handleImageAction"
+      @item-action="handleItemAction"
       @image-load="handleImageLoaded"
     />
 
@@ -42,6 +42,7 @@ const {
   currentPath,
   folders,
   loading,
+  files,
   imageFiles,
   fetchFiles,
   navigateTo,
@@ -153,15 +154,24 @@ const handleImageClick = async (index: number) => {
   await openPreviewAt(index)
 }
 
-const handleImageAction = (payload: { type: 'copy' | 'rename' | 'delete'; index: number }) => {
-  const file = imageFiles.value[payload.index]
-  if (!file) return
-  if (payload.type === 'copy') return copyImageLink(file)
-  if (payload.type === 'rename') return openRenameModal(file)
-  return openDeleteConfirm(file)
+const handleItemAction = (payload: { type: 'open' | 'copy' | 'download' | 'rename' | 'delete'; item: FileItem }) => {
+  const { type, item } = payload
+  if (type === 'open') {
+    if (item.type === 'folder') return handleNavigate(item.path)
+    return openFileUrl(item)
+  }
+  if (type === 'download') return openFileUrl(item)
+  if (type === 'copy') return copyLink(item)
+  if (type === 'rename') return openRenameModal(item)
+  return openDeleteConfirm(item)
 }
 
-const copyImageLink = async (file: FileItem | null) => {
+const openFileUrl = (file: FileItem | null) => {
+  if (!file || !import.meta.client) return
+  window.open(getImageUrl(file), '_blank', 'noopener')
+}
+
+const copyLink = async (file: FileItem | null) => {
   if (!file) return
   const ok = await copyText(getImageUrl(file))
   showToast(ok ? '链接已复制' : '复制失败')
@@ -275,3 +285,15 @@ onBeforeUnmount(() => {
   boundGalleryEl = null
 })
 </script>
+
+<style scoped>
+.file-page {
+  min-height: 100vh;
+  padding: 1.5rem 1.5rem calc(1.5rem + var(--bottom-nav-offset));
+}
+@media (max-width: 767px) {
+  .file-page {
+    padding: 1rem 1rem calc(1.5rem + var(--bottom-nav-offset));
+  }
+}
+</style>

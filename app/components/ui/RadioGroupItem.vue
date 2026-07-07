@@ -19,16 +19,10 @@ const delegatedProps = computed(() => {
 <template>
   <RekaRadioGroupItem
     v-bind="delegatedProps"
-    :class="cn(
-      'aspect-square size-4 rounded-full border border-primary text-primary',
-      'focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40',
-      'disabled:cursor-not-allowed disabled:opacity-50',
-      'data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground',
-      props.class,
-    )"
+    :class="cn('radio-item', props.class)"
   >
-    <RadioGroupIndicator class="flex items-center justify-center">
-      <Circle class="size-2 fill-current text-current" />
+    <RadioGroupIndicator class="radio-indicator">
+      <Circle />
     </RadioGroupIndicator>
   </RekaRadioGroupItem>
 </template>

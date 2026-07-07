@@ -127,20 +127,54 @@ onBeforeUnmount(() => {
 <template>
   <button
     type="button"
-    class="theme-toggle fixed right-[calc(14px+env(safe-area-inset-right))] top-[calc(12px+env(safe-area-inset-top))] z-[2400] flex size-10 items-center justify-center rounded-lg text-secondary-foreground opacity-95 transition hover:text-primary max-md:right-[calc(10px+env(safe-area-inset-right))] max-md:top-[calc(10px+env(safe-area-inset-top))]"
+    class="theme-toggle"
     :title="buttonText"
     :aria-label="buttonText"
     @click="cycleMode"
   >
     <Transition name="theme-icon" mode="out-in">
-      <component :is="iconMap[mode]" :key="mode" class="size-[22px]" />
+      <component :is="iconMap[mode]" :key="mode" class="theme-toggle__icon" />
     </Transition>
   </button>
 </template>
 
 <style scoped>
+.theme-toggle {
+  position: fixed;
+  right: calc(14px + env(safe-area-inset-right));
+  top: calc(12px + env(safe-area-inset-top));
+  z-index: var(--z-theme-toggle);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  background: transparent;
+  border-radius: var(--radius-lg);
+  color: var(--secondary-foreground);
+  opacity: 0.95;
+  cursor: pointer;
+  transition:
+    opacity var(--duration-base) ease,
+    color var(--duration-base) ease,
+    transform var(--duration-base) ease;
+}
+@media (max-width: 767px) {
+  .theme-toggle {
+    right: calc(10px + env(safe-area-inset-right));
+    top: calc(10px + env(safe-area-inset-top));
+  }
+}
+
+.theme-toggle__icon {
+  width: 22px;
+  height: 22px;
+}
+
 .theme-toggle:hover {
   opacity: 1;
+  color: var(--primary);
   transform: translateY(-1px);
 }
 
@@ -149,7 +183,7 @@ onBeforeUnmount(() => {
 }
 
 .theme-toggle:focus-visible {
-  outline: 2px solid var(--color-ring);
+  outline: 2px solid var(--ring);
   outline-offset: 3px;
 }
 

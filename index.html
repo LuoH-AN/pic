@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<title>南阳市教育考试中心</title>
+<script type="text/javascript">
+function fwqbh()
+{
+	if (window.XMLHttpRequest)
+    {
+        // IE7+, Firefox, Chrome, Opera, Safari 浏览器执行的代码
+        xmlhttp=new XMLHttpRequest();
+    }
+    else
+    {    
+        //IE6, IE5 浏览器执行的代码
+        xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    xmlhttp.onreadystatechange=function()
+    {
+        if (xmlhttp.readyState==4 && xmlhttp.status==200)
+        {
+            document.getElementById("txtFWQ").innerHTML=xmlhttp.responseText;
+        }
+    }
+    xmlhttp.open("GET","./zzcjcx9.php?FWQ=1",true);
+    xmlhttp.send();
+}
+
+function chaxun()
+{
+	cxzkzh=document.getElementById("txtZKZH").value;
+	cxsfzh=document.getElementById("txtSFZH").value;
+	   if (cxzkzh.length==0)
+    { 
+        document.getElementById("txtHint").innerHTML="未输入正确信息";
+        return;
+    }
+    if (window.XMLHttpRequest)
+    {
+        // IE7+, Firefox, Chrome, Opera, Safari 浏览器执行的代码
+        xmlhttp=new XMLHttpRequest();
+    }
+    else
+    {    
+        //IE6, IE5 浏览器执行的代码
+        xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    xmlhttp.onreadystatechange=function()
+    {
+        if (xmlhttp.readyState==4 && xmlhttp.status==200)
+        {
+            document.getElementById("txtHint").innerHTML=xmlhttp.responseText;
+        }
+    }
+    xmlhttp.open("GET","./zzcjcx9.php?txtZKZH="+cxzkzh+cxsfzh,true);
+    xmlhttp.send();
+}
+</script>
+</head>
+<body>
+<div align="center">
+<font size="7" color="#FF0000">南阳市教育考试中心</font><br>
+<script type="text/javascript">fwqbh();</script>
+<font size="6" color="#0000FF">2026年中招考试文化课成绩查询</font><br>
+<form> 
+　　　准考证号： 
+<input id="txtZKZH" type="text" maxLength="12" name="txtZKZH"/></p>
+<!--报名序号： -->
+<input type="hidden"  id="txtBMXH" maxLength="14" name="txtBMXH"/></p>
+身份证号后6位： 
+<input id="txtSFZH" class="blueborder" maxLength="6" name="txtSFZH"/></p>
+</p>
+准考证号、身份证号后6位都要填写正确,注意关闭中文输入法,在英文状态下输入</p>
+<input type="button" value="提交"  style="font-size: 16pt" onclick="chaxun()"/>
+</form>
+<p><font color="#FF0000">查询结果: </font><div id="txtHint" size="5" size="5" style="color: #FF0000; font-family: 宋体; font-size: 16pt" align="center" ></div></p>
+<hr/>
+<div align="center" width="100%">
+<p align="left"><font color="#0000FF">2026年南阳市中招考试初中九年级文化课成绩将于7月5日零时公布，考生可通过以下方式查询本人成绩:<br>
+1、通过微信扫描准考证上的个人二维码查询。<br>
+2、登录“南阳市教育考试中心”查询（网址：</font><a href="https://www.nyzsb.com.cn/">https://www.nyeea.cn</a><font color="#0000FF">）。<br>
+3、通过“爱南阳”APP查询。<br>
+<br>
+</font><BR>
+</p>
+<hr/>
+<font color="#FF0000">注意：准考证号在准考证上，如果准考证已上交学校，可以向学校要。<br>
+需要补办准考证的与当地县区招办联系补办，不能以电话形式查询准考证号。</font><hr/>
+<BR>
+<table width="100%" border="0" cellpadding="0" cellspacing="4" class="copyright">
+<tr> 
+<td align="right">
+
+<script type="text/javascript">document.write(unescape("%3Cspan id='_ideConac' %3E%3C/span%3E%3Cscript src='https://dcs.conac.cn/js/17/2             63/0000/60239186/CA172630000602391860002.js' type='text/javascript'%3E%3C/script%3E"));</script>
+</td>
+<td align="center" width="40%">
+<a href="/wwwnew/">网站首页</a> |
+<a href="/wwwnew/index.html">新闻首页</a> |
+<a href="/wwwnew/nyzsbwww/wangzhanxinxi/guanyu.html">关于我们</a>| 
+<a href="/wwwnew/nyzsbwww/wangzhanxinxi/lianxi.html">联系我们</a> |
+<a href="/wwwnew/nyzsbwww/wangzhanxinxi/banquan.html">版权声明</a><br>
+版权所有  南阳市教育考试中心 ※ 更新日期: 2026年07月<br>
+&nbsp;<a href="https://beian.miit.gov.cn/#/Integrated/recordQuery">豫ICP备11022161号-2</a><br>
+<a target="_blank" href="https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=41133202000102" style="display:inline-block;height:20px;line-height:20px;"><img src="/gaba.png" style="float:left;"/><p style="float:left;height:20px;line-height:20px;margin: 0px 0px 0px 5px;">豫公网安备41133202000102号</p></a>
+</td>
+<td align="left">
+<a href="https://cyberpolice.mps.gov.cn/" target="_blank">
+  <img alt="网警标志" title="网警标志" src="/110.gif" width="79" height="80" /></a>
+</td>
+        </tr>
+        </table>
+</td>
+</tr>
+</table>
+</div>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?f8475428ea281bc07d95320150f43127";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+</body>
+</html>

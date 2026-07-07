@@ -7,7 +7,7 @@ const props = defineProps<DialogDescriptionProps & { class?: HTMLAttributes['cla
 </script>
 
 <template>
-  <DialogDescription :as="props.as" :as-child="props.asChild" :class="cn('text-sm text-muted-foreground', props.class)">
+  <DialogDescription :as="props.as" :as-child="props.asChild" :class="cn('dialog-description', props.class)">
     <slot />
   </DialogDescription>
 </template>

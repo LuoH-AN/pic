@@ -20,7 +20,9 @@ const emit = defineEmits<{
     title="确认删除"
     @update:model-value="emit('update:modelValue', $event)"
   >
-    <p class="m-0 text-sm text-muted-foreground">确定删除图片"{{ fileName }}"吗？</p>
+    <p class="delete-modal__text">
+      确定删除"{{ fileName }}"吗？
+    </p>
 
     <template #footer>
       <UiButton
@@ -30,7 +32,7 @@ const emit = defineEmits<{
         title="取消"
         @click="emit('update:modelValue', false)"
       >
-        <X class="size-4" />
+        <X />
       </UiButton>
       <UiButton
         variant="destructive"
@@ -40,8 +42,16 @@ const emit = defineEmits<{
         :disabled="loading"
         @click="emit('confirm')"
       >
-        <Trash2 class="size-4" />
+        <Trash2 />
       </UiButton>
     </template>
   </UiModal>
 </template>
+
+<style scoped>
+.delete-modal__text {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--muted-foreground);
+}
+</style>

@@ -1,6 +1,4 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import tailwindcss from '@tailwindcss/vite'
-
 export default defineNuxtConfig({
   compatibilityDate: '2026-02-05',
   devtools: { enabled: process.env.NODE_ENV === 'development' },
@@ -39,8 +37,5 @@ export default defineNuxtConfig({
         },
       ],
     },
-  },
-  vite: {
-    plugins: [tailwindcss()],
   },
 })

@@ -37,7 +37,7 @@ const emit = defineEmits<{
         title="取消"
         @click="emit('cancel')"
       >
-        <X class="size-4" />
+        <X />
       </UiButton>
       <UiButton
         variant="default"
@@ -47,7 +47,7 @@ const emit = defineEmits<{
         :disabled="loading"
         @click="emit('confirm')"
       >
-        <Check class="size-4" />
+        <Check />
       </UiButton>
     </template>
   </UiModal>

@@ -20,8 +20,8 @@ const hasPendingUpload = computed(() => props.files.some(file => !file.uploaded 
 </script>
 
 <template>
-  <div v-if="files.length > 0" class="mt-6">
-    <div class="mb-4 flex flex-col gap-3">
+  <div v-if="files.length > 0" class="upload-list">
+    <div class="upload-list__items">
       <UploadFilePreviewItem
         v-for="(file, index) in files"
         :key="file.id"
@@ -32,9 +32,9 @@ const hasPendingUpload = computed(() => props.files.some(file => !file.uploaded 
       />
     </div>
 
-    <div class="flex items-center justify-between py-3">
-      <div class="flex-1" />
-      <div class="flex gap-2">
+    <div class="upload-list__actions">
+      <div class="upload-list__spacer" />
+      <div class="upload-list__btns">
         <UiIconButton
           variant="upload"
           :loading="isUploading"
@@ -42,12 +42,41 @@ const hasPendingUpload = computed(() => props.files.some(file => !file.uploaded 
           title="全部上传"
           @click="$emit('uploadAll')"
         >
-          <Upload class="size-4" />
+          <Upload />
         </UiIconButton>
         <UiIconButton variant="delete" title="全部删除" @click="$emit('removeAll')">
-          <Trash2 class="size-4" />
+          <Trash2 />
         </UiIconButton>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.upload-list {
+  margin-top: 1.5rem;
+}
+
+.upload-list__items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.upload-list__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 0.75rem;
+}
+
+.upload-list__spacer {
+  flex: 1;
+}
+
+.upload-list__btns {
+  display: flex;
+  gap: 0.5rem;
+}
+</style>

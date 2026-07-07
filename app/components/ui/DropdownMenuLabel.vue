@@ -7,7 +7,7 @@ const props = defineProps<DropdownMenuLabelProps & { class?: HTMLAttributes['cla
 </script>
 
 <template>
-  <DropdownMenuLabel
-    :class="cn('px-2 py-1.5 text-xs font-medium text-muted-foreground', inset && 'pl-8', props.class)"
-  />
+  <DropdownMenuLabel :class="cn('menu-label', inset && 'menu-label--inset', props.class)">
+    <slot />
+  </DropdownMenuLabel>
 </template>

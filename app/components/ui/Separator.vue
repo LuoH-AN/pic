@@ -16,10 +16,6 @@ const props = withDefaults(
   <SeparatorRoot
     :orientation="orientation"
     :decorative="decorative"
-    :class="cn(
-      'shrink-0 bg-border',
-      orientation === 'vertical' ? 'w-px h-full' : 'h-px w-full',
-      props.class,
-    )"
+    :class="cn('separator', props.class)"
   />
 </template>

@@ -10,5 +10,5 @@ const props = defineProps<DropdownMenuSeparatorProps & { class?: HTMLAttributes[
 </script>
 
 <template>
-  <DropdownMenuSeparator :class="cn('-mx-1 my-1 h-px bg-border', props.class)" />
+  <DropdownMenuSeparator :class="cn('menu-separator', props.class)" />
 </template>

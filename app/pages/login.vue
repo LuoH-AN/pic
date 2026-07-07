@@ -1,21 +1,19 @@
 <template>
-  <div class="flex min-h-screen items-center justify-center px-6 py-10">
-    <div class="relative flex w-full max-w-[420px] flex-col gap-8 rounded-xl border bg-card p-8 max-md:rounded-lg max-md:p-6">
-      <div class="flex flex-col items-center gap-3 text-center">
-        <div
-          class="flex size-12 items-center justify-center rounded-xl border bg-background text-foreground"
-        >
-          <Lock class="size-5" />
+  <div class="login-page">
+    <div class="login-card">
+      <div class="login-card__head">
+        <div class="login-card__badge">
+          <Lock />
         </div>
-        <h1 class="m-0 text-xl font-semibold tracking-tight text-foreground">
+        <h1 class="login-card__title">
           访问验证
         </h1>
-        <p class="m-0 text-sm text-muted-foreground">
+        <p class="login-card__subtitle">
           请输入访问密码以继续
         </p>
       </div>
 
-      <form class="flex flex-col gap-3" @submit.prevent="submitLogin">
+      <form class="login-form" @submit.prevent="submitLogin">
         <UiLabel for="access-password">访问密码</UiLabel>
         <UiInput
           id="access-password"
@@ -24,10 +22,10 @@
           placeholder="请输入访问密码"
           autocomplete="current-password"
           :disabled="loading"
-          class="h-10"
+          class="login-form__input"
         />
 
-        <p v-if="errorMessage" class="m-0 mt-0.5 text-[13px] text-destructive">
+        <p v-if="errorMessage" class="login-form__error">
           {{ errorMessage }}
         </p>
 
@@ -36,9 +34,9 @@
           variant="default"
           size="lg"
           :disabled="loading"
-          class="mt-2 h-10 w-full"
+          class="login-form__submit"
         >
-          <Loader2 v-if="loading" class="size-4 animate-spin" />
+          <Loader2 v-if="loading" class="spin" />
           <span>{{ loading ? '验证中...' : '进入系统' }}</span>
         </UiButton>
       </form>
@@ -104,3 +102,93 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+.login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2.5rem 1.5rem;
+}
+
+.login-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+  max-width: 26.25rem;
+  padding: 2rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+}
+@media (max-width: 767px) {
+  .login-card {
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+  }
+}
+
+.login-card__head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.login-card__badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  color: var(--foreground);
+}
+.login-card__badge svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.login-card__title {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  letter-spacing: -0.01em;
+  color: var(--foreground);
+}
+
+.login-card__subtitle {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--muted-foreground);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* UiInput / UiButton are child components; their root element receives
+   this scope id, so these classes reach them without :deep. */
+.login-form__input {
+  height: var(--control-h-lg);
+}
+
+.login-form__error {
+  margin: 0.125rem 0 0;
+  font-size: 13px;
+  color: var(--destructive);
+}
+
+.login-form__submit {
+  margin-top: 0.5rem;
+  width: 100%;
+}
+</style>
